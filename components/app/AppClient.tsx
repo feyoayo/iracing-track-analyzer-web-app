@@ -11,6 +11,10 @@ import {
   analyzeSchedule,
   type AnalysisResult,
 } from "@/lib/analysis/analyzeSchedule";
+import {
+  normalizePreparedSeason,
+  normalizeTracksIndex,
+} from "@/lib/data/seriesClassOverrides";
 import { loadSelection, saveSelection } from "@/lib/state/storage";
 import { findTrackUsage } from "@/lib/tracks/findTrackUsage";
 import type { PreparedSeason, TracksIndex } from "@/lib/types";
@@ -22,38 +26,61 @@ export function AppClient({
   season: PreparedSeason;
   tracksIndex: TracksIndex;
 }) {
+  const normalizedSeason = useMemo(() => normalizePreparedSeason(season), [season]);
+  const normalizedTracksIndex = useMemo(
+    () => normalizeTracksIndex(tracksIndex),
+    [tracksIndex],
+  );
+
   const classes = useMemo(
-    () => [...new Set(season.series.map((series) => series.seriesClass))],
-    [season],
+    () => [...new Set(normalizedSeason.series.map((series) => series.seriesClass))],
+    [normalizedSeason],
   );
   const [selectedClass, setSelectedClass] = useState(classes[0] ?? "");
   const [selectedSeries, setSelectedSeries] = useState<string[]>([]);
   const [trackQuery, setTrackQuery] = useState("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
 
+  const classSeries = useMemo(
+    () =>
+      normalizedSeason.series
+        .filter((series) => series.seriesClass === selectedClass)
+        .map((series) => series.seriesName),
+    [normalizedSeason, selectedClass],
+  );
+
   useEffect(() => {
+    const fallbackClass = classes[0] || "";
     const saved = loadSelection();
-    if (!saved) {
-      return;
-    }
+    const nextClass =
+      saved?.selectedClass && classes.includes(saved.selectedClass)
+        ? saved.selectedClass
+        : fallbackClass;
+    const nextClassSeries = normalizedSeason.series
+      .filter((series) => series.seriesClass === nextClass)
+      .map((series) => series.seriesName);
 
-    setSelectedClass(saved.selectedClass || classes[0] || "");
-    setSelectedSeries(saved.selectedSeries || []);
-    setTrackQuery(saved.lastTrackQuery || "");
-  }, [classes]);
+    setSelectedClass(nextClass);
+    setSelectedSeries(
+      saved
+        ? saved.selectedSeries.filter((seriesName) =>
+            nextClassSeries.includes(seriesName),
+          )
+        : [],
+    );
+    setTrackQuery(saved?.lastTrackQuery || "");
+  }, [classes, normalizedSeason.series]);
 
   useEffect(() => {
-    setResult(analyzeSchedule(season, selectedSeries));
+    setResult(analyzeSchedule(normalizedSeason, selectedSeries));
     saveSelection({
       selectedClass,
       selectedSeries,
       lastTrackQuery: trackQuery,
     });
-  }, [season, selectedClass, selectedSeries, trackQuery]);
+  }, [normalizedSeason, selectedClass, selectedSeries, trackQuery]);
 
-  const classSeries = season.series
-    .filter((series) => series.seriesClass === selectedClass)
-    .map((series) => series.seriesName);
+  const usage = findTrackUsage(normalizedSeason, normalizedTracksIndex, trackQuery);
 
   return (
     <AppShell
@@ -77,17 +104,15 @@ export function AppClient({
                   : [...current, value],
               )
             }
+            onSelectAllSeries={() => setSelectedSeries(classSeries)}
+            onClearSeries={() => setSelectedSeries([])}
             onTrackQueryChange={setTrackQuery}
           />
           <ExportButton result={result} />
         </>
       }
       analysis={<AnalysisTable result={result} />}
-      trackLookup={
-        <TrackLookupPanel
-          usage={findTrackUsage(season, tracksIndex, trackQuery)}
-        />
-      }
+      trackLookup={<TrackLookupPanel usage={usage} query={trackQuery} />}
     />
   );
 }
