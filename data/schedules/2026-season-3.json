@@ -1,0 +1,36 @@
+{
+  "seasonSlug": "2026-season-3",
+  "seasonName": "2026 Season 3",
+  "series": [
+    {
+      "seriesName": "GT Sprint",
+      "seriesClass": "Sports Car",
+      "weeks": [
+        {
+          "trackId": 10,
+          "trackName": "Spa-Francorchamps",
+          "weekNumber": 1,
+          "raceDate": "2026-06-16"
+        },
+        {
+          "trackId": 11,
+          "trackName": "Watkins Glen",
+          "weekNumber": 2,
+          "raceDate": "2026-06-23"
+        }
+      ]
+    },
+    {
+      "seriesName": "GT3 Fixed",
+      "seriesClass": "Sports Car",
+      "weeks": [
+        {
+          "trackId": 10,
+          "trackName": "Spa-Francorchamps",
+          "weekNumber": 4,
+          "raceDate": "2026-07-07"
+        }
+      ]
+    }
+  ]
+}

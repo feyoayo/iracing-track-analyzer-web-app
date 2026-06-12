@@ -1,0 +1,22 @@
+{
+  "tracks": [
+    {
+      "trackId": 10,
+      "trackName": "Spa-Francorchamps",
+      "seasonName": "2026 Season 3",
+      "seriesName": "GT Sprint",
+      "seriesClass": "Sports Car",
+      "weekNumber": 1,
+      "raceDate": "2026-06-16"
+    },
+    {
+      "trackId": 10,
+      "trackName": "Spa-Francorchamps",
+      "seasonName": "2026 Season 2",
+      "seriesName": "GT Sprint",
+      "seriesClass": "Sports Car",
+      "weekNumber": 4,
+      "raceDate": "2026-03-24"
+    }
+  ]
+}
