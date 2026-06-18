@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { startTransition, useDeferredValue, useMemo, useState } from "react";
 import { ArrowDownAZ, ArrowUpAZ, ArrowUpDown, Search } from "lucide-react";
 
@@ -24,7 +25,13 @@ const PAGE_SIZE = 12;
 type SortKey = "name" | "appears";
 type SortDirection = "asc" | "desc";
 
-export function TracksPageClient({ season }: { season: PreparedSeason }) {
+export function TracksPageClient({
+  season,
+  authSlot,
+}: {
+  season: PreparedSeason;
+  authSlot?: ReactNode;
+}) {
   const normalizedSeason = useMemo(() => normalizePreparedSeason(season), [season]);
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
@@ -106,6 +113,7 @@ export function TracksPageClient({ season }: { season: PreparedSeason }) {
         seasonName={season.seasonName}
         title="Tracks"
         description="Search the active season, scan every current track, and drill into full appearance history."
+        authSlot={authSlot}
       />
 
       <Card>

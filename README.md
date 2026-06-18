@@ -23,6 +23,38 @@ npm run build
 npm run dev
 ```
 
+## Google Auth Setup
+
+Set these environment variables in `web/.env.local`:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=...
+```
+
+Then configure Google in Supabase and Google Cloud:
+
+1. Enable the Google provider in the Supabase dashboard.
+2. In Google Cloud, add your app origin under Authorized JavaScript origins.
+3. In Google Cloud, add the Supabase Google callback URL from the Supabase dashboard under Authorized redirect URIs.
+4. Add your app URL and `http://localhost:3000` to the Supabase redirect allow list.
+
+The app uses the callback route `/auth/callback` for the PKCE code exchange.
+
+## Profiles table
+
+Application user data lives in `public.profiles`, not `auth.users`.
+
+Apply the SQL migration from:
+
+`../supabase/migrations/20260618_create_profiles.sql`
+
+That migration:
+
+- creates `public.profiles`
+- creates a trigger that inserts a profile row on first auth signup
+- enables RLS so users can only access their own profile
+
 ## Deployment
 
 - Root Directory: `web`

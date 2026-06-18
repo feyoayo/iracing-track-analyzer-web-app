@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 
+import { HeaderAuth } from "@/components/auth/HeaderAuth";
 import { TrackDetailPage } from "@/components/tracks/TrackDetailPage";
 import { getLatestPreparedData } from "@/lib/data/preparedData";
 import { getTrackUsageById } from "@/lib/tracks/findTrackUsage";
@@ -24,5 +25,13 @@ export default async function TrackPage({
     notFound();
   }
 
-  return <TrackDetailPage seasonName={season.seasonName} usage={usage} />;
+  const authSlot = await HeaderAuth();
+
+  return (
+    <TrackDetailPage
+      seasonName={season.seasonName}
+      usage={usage}
+      authSlot={authSlot}
+    />
+  );
 }

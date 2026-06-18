@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 
 import { AnalysisFilters } from "@/components/analysis/AnalysisFilters";
@@ -16,8 +17,10 @@ import type { PreparedSeason } from "@/lib/types";
 
 export function AppClient({
   season,
+  authSlot,
 }: {
   season: PreparedSeason;
+  authSlot?: ReactNode;
 }) {
   const normalizedSeason = useMemo(() => normalizePreparedSeason(season), [season]);
 
@@ -69,6 +72,7 @@ export function AppClient({
   return (
     <AppShell
       seasonName={season.seasonName}
+      authSlot={authSlot}
       controls={
         <>
           <AnalysisFilters

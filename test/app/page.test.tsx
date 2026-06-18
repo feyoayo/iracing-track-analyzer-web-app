@@ -13,6 +13,9 @@ describe("Page", () => {
     expect(screen.getByText("Active season")).toBeInTheDocument();
     expect(screen.getByText("Export Excel")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Tracks" })).toBeInTheDocument();
+    expect(
+      screen.getByText("Set Supabase env vars to enable sign-in."),
+    ).toBeInTheDocument();
   });
 
   it("renders the tracks directory page", async () => {

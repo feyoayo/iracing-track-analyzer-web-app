@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { CalendarRange } from "lucide-react";
 
@@ -14,11 +15,13 @@ export function SiteHeader({
   seasonName,
   title,
   description,
+  authSlot,
 }: {
   currentTab: (typeof NAV_ITEMS)[number]["key"];
   seasonName: string;
   title: string;
   description: string;
+  authSlot?: ReactNode;
 }) {
   return (
     <header className="grid gap-4">
@@ -35,21 +38,24 @@ export function SiteHeader({
           </p>
         </div>
 
-        <Card className="w-full max-w-sm lg:w-auto">
-          <CardContent className="flex items-center gap-3 p-4">
-            <div className="rounded-md bg-primary/10 p-2 text-primary">
-              <CalendarRange className="h-5 w-5" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
-                Active season
-              </p>
-              <strong className="block truncate text-sm font-semibold md:text-base">
-                {seasonName}
-              </strong>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="flex w-full flex-col gap-3 lg:w-auto lg:items-end">
+          <Card className="w-full max-w-sm lg:w-auto">
+            <CardContent className="flex items-center gap-3 p-4">
+              <div className="rounded-md bg-primary/10 p-2 text-primary">
+                <CalendarRange className="h-5 w-5" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
+                  Active season
+                </p>
+                <strong className="block truncate text-sm font-semibold md:text-base">
+                  {seasonName}
+                </strong>
+              </div>
+            </CardContent>
+          </Card>
+          {authSlot ? <div>{authSlot}</div> : null}
+        </div>
       </div>
 
       <nav

@@ -9,10 +9,12 @@ export function AppShell({
   seasonName,
   controls,
   analysis,
+  authSlot,
 }: {
   seasonName: string;
   controls: ReactNode;
   analysis: ReactNode;
+  authSlot?: ReactNode;
 }) {
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[1440px] flex-col gap-4 px-4 py-6 md:px-6">
@@ -21,6 +23,7 @@ export function AppShell({
         seasonName={seasonName}
         title="Season planning"
         description="Compare series overlap, spot high-value tracks, and export the current season plan."
+        authSlot={authSlot}
       />
 
       <section className="grid items-start gap-4 xl:grid-cols-[320px_minmax(0,1fr)]">
