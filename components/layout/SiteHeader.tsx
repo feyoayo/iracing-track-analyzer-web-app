@@ -25,6 +25,8 @@ export function SiteHeader({
 }) {
   return (
     <header className="grid gap-4">
+  {authSlot ? <div>{authSlot}</div> : null}
+
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
@@ -54,7 +56,6 @@ export function SiteHeader({
               </div>
             </CardContent>
           </Card>
-          {authSlot ? <div>{authSlot}</div> : null}
         </div>
       </div>
 

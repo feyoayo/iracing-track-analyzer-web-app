@@ -21,7 +21,9 @@ export async function HeaderAuth() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return <SignInButton />;
+    return  <div className="flex flex-col items-start gap-3 lg:items-end">
+      <SignInButton />
+      </div>;
   }
 
   return (
