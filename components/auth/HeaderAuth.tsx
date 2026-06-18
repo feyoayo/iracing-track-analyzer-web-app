@@ -1,14 +1,11 @@
-import { SignInButton, SignOutButton } from "@/components/auth/AuthButton";
+import { SignInButton } from "@/components/auth/AuthButton";
+import { UserMenu } from "@/components/auth/UserMenu";
 import { hasSupabaseEnv } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 
 export async function HeaderAuth() {
   if (!hasSupabaseEnv()) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        Set Supabase env vars to enable sign-in.
-      </p>
-    );
+    return 
   }
 
   const supabase = await createClient();
@@ -21,18 +18,21 @@ export async function HeaderAuth() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return  <div className="flex flex-col items-start gap-3 lg:items-end">
+    return <div className="flex flex-col items-start gap-3 lg:items-end">
       <SignInButton />
-      </div>;
+    </div>;
   }
+
+  const avatarUrl = user.user_metadata.avatar_url as string | undefined;
+  const displayName = user.user_metadata.full_name ?? "Signed in";
 
   return (
     <div className="flex flex-col items-start gap-3 lg:items-end">
-      <div className="text-sm">
-        <p className="font-medium">{user.user_metadata.full_name ?? "Signed in"}</p>
-        <p className="text-muted-foreground">{user.email}</p>
-      </div>
-      <SignOutButton />
+      <UserMenu
+        displayName={displayName}
+        email={user.email}
+        avatarUrl={avatarUrl}
+      />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
@@ -32,25 +32,6 @@ export function SignInButton() {
       }}
     >
       Continue with Google
-    </Button>
-  );
-}
-
-export function SignOutButton() {
-  const router = useRouter();
-
-  return (
-    <Button
-      type="button"
-      variant="outline"
-      onClick={async () => {
-        const supabase = createClient();
-        await supabase.auth.signOut();
-        router.refresh();
-        router.push("/");
-      }}
-    >
-      Sign out
     </Button>
   );
 }
