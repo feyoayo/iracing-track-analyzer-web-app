@@ -18,9 +18,11 @@ import type { PreparedSeason } from "@/lib/types";
 export function AppClient({
   season,
   authSlot,
+  utilitySlot,
 }: {
   season: PreparedSeason;
   authSlot?: ReactNode;
+  utilitySlot?: ReactNode;
 }) {
   const normalizedSeason = useMemo(() => normalizePreparedSeason(season), [season]);
 
@@ -73,6 +75,7 @@ export function AppClient({
     <AppShell
       seasonName={season.seasonName}
       authSlot={authSlot}
+      utilitySlot={utilitySlot}
       controls={
         <>
           <AnalysisFilters

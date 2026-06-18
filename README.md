@@ -49,11 +49,16 @@ Apply the SQL migration from:
 
 `../supabase/migrations/20260618_create_profiles.sql`
 
+and:
+
+`../supabase/migrations/20260618_create_feedback.sql`
+
 That migration:
 
 - creates `public.profiles`
 - creates a trigger that inserts a profile row on first auth signup
 - enables RLS so users can only access their own profile
+- creates `public.feedback` for in-app feedback submissions
 
 ## Deployment
 

@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 
 export async function HeaderAuth() {
   if (!hasSupabaseEnv()) {
-    return 
+    return null;
   }
 
   const supabase = await createClient();

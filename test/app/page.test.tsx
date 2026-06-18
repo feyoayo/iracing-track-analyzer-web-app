@@ -15,7 +15,7 @@ describe("Page", () => {
     expect(screen.getByText("Export Excel")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Tracks" })).toBeInTheDocument();
     expect(
-      screen.getByText("Set Supabase env vars to enable sign-in."),
+      screen.getByRole("button", { name: /share your feedback/i }),
     ).toBeInTheDocument();
   });
 

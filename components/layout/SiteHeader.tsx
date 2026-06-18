@@ -16,12 +16,14 @@ export function SiteHeader({
   title,
   description,
   authSlot,
+  utilitySlot,
 }: {
   currentTab: (typeof NAV_ITEMS)[number]["key"];
   seasonName: string;
   title: string;
   description: string;
   authSlot?: ReactNode;
+  utilitySlot?: ReactNode;
 }) {
   return (
     <header className="grid gap-4">
@@ -56,6 +58,12 @@ export function SiteHeader({
               </div>
             </CardContent>
           </Card>
+          {utilitySlot || authSlot ? (
+            <div className="flex flex-wrap items-center gap-2 lg:justify-end">
+              {utilitySlot ? <div>{utilitySlot}</div> : null}
+              {authSlot ? <div>{authSlot}</div> : null}
+            </div>
+          ) : null}
         </div>
       </div>
 

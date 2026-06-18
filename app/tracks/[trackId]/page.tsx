@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { HeaderAuth } from "@/components/auth/HeaderAuth";
+import { FeedbackDialog } from "@/components/feedback/FeedbackDialog";
 import { TrackDetailPage } from "@/components/tracks/TrackDetailPage";
 import { getLatestPreparedData } from "@/lib/data/preparedData";
 import { getTrackUsageById } from "@/lib/tracks/findTrackUsage";
@@ -32,6 +33,7 @@ export default async function TrackPage({
       seasonName={season.seasonName}
       usage={usage}
       authSlot={authSlot}
+      utilitySlot={<FeedbackDialog />}
     />
   );
 }

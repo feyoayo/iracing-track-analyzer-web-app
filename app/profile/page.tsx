@@ -1,4 +1,5 @@
 import { HeaderAuth } from "@/components/auth/HeaderAuth";
+import { FeedbackDialog } from "@/components/feedback/FeedbackDialog";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { getLatestPreparedData } from "@/lib/data/preparedData";
@@ -17,6 +18,7 @@ export default async function ProfilePage() {
         title="Profile"
         description="User profile page placeholder."
         authSlot={authSlot}
+        utilitySlot={<FeedbackDialog />}
       />
 
       <Card className="max-w-3xl">

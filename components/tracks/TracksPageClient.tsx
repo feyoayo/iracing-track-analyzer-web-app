@@ -28,9 +28,11 @@ type SortDirection = "asc" | "desc";
 export function TracksPageClient({
   season,
   authSlot,
+  utilitySlot,
 }: {
   season: PreparedSeason;
   authSlot?: ReactNode;
+  utilitySlot?: ReactNode;
 }) {
   const normalizedSeason = useMemo(() => normalizePreparedSeason(season), [season]);
   const [query, setQuery] = useState("");
@@ -114,6 +116,7 @@ export function TracksPageClient({
         title="Tracks"
         description="Search the active season, scan every current track, and drill into full appearance history."
         authSlot={authSlot}
+        utilitySlot={utilitySlot}
       />
 
       <Card>

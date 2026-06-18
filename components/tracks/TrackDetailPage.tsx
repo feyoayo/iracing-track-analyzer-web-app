@@ -12,10 +12,12 @@ export function TrackDetailPage({
   seasonName,
   usage,
   authSlot,
+  utilitySlot,
 }: {
   seasonName: string;
   usage: TrackUsageResult;
   authSlot?: ReactNode;
+  utilitySlot?: ReactNode;
 }) {
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[1440px] flex-col gap-4 px-4 py-6 md:px-6">
@@ -25,6 +27,7 @@ export function TrackDetailPage({
         title={usage.trackName}
         description="Current-season usage and prepared historical appearances for the selected track."
         authSlot={authSlot}
+        utilitySlot={utilitySlot}
       />
 
       <div>
