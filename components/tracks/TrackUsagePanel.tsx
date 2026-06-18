@@ -1,50 +1,11 @@
-import { Clock3, History, SearchX } from "lucide-react";
+import { Clock3, History } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import type { TrackUsageResult } from "@/lib/tracks/findTrackUsage";
 
-export function TrackLookupPanel({
-  usage,
-  query,
-}: {
-  usage: TrackUsageResult | null;
-  query: string;
-}) {
-  if (!query.trim()) {
-    return (
-      <section className="grid gap-3">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
-            Track history
-          </p>
-          <h2 className="mt-1 text-lg font-semibold">Find a track</h2>
-        </div>
-        <p className="text-sm leading-6 text-muted-foreground">
-          Search for a track to inspect current-season usage and past appearances.
-        </p>
-      </section>
-    );
-  }
-
-  if (!usage) {
-    return (
-      <section className="grid gap-3">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <SearchX className="h-4 w-4" />
-          <p className="text-xs font-medium uppercase tracking-[0.12em]">
-            No match
-          </p>
-        </div>
-        <h2 className="text-lg font-semibold">Track not found</h2>
-        <p className="text-sm leading-6 text-muted-foreground">
-          No track name contains &quot;{query.trim()}&quot;.
-        </p>
-      </section>
-    );
-  }
-
+export function TrackUsagePanel({ usage }: { usage: TrackUsageResult }) {
   return (
     <section className="grid gap-4">
       <div className="flex items-start justify-between gap-3">

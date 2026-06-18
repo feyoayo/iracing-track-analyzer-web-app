@@ -1,20 +1,8 @@
-import metadata from "@/data/metadata.json";
-import tracksIndex from "@/data/tracks-index.json";
-
 import { AppClient } from "@/components/app/AppClient";
+import { getLatestPreparedData } from "@/lib/data/preparedData";
 
 export default async function Page() {
-  const preparedSeason = (
-    await import(`@/data/schedules/${metadata.latestSeasonSlug}.json`)
-  ).default;
+  const { season } = await getLatestPreparedData();
 
-  return (
-    <AppClient
-      season={{
-        ...preparedSeason,
-        seasonName: metadata.latestSeasonName,
-      }}
-      tracksIndex={tracksIndex}
-    />
-  );
+  return <AppClient season={season} />;
 }

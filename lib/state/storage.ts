@@ -1,7 +1,6 @@
 export type SavedSelection = {
   selectedClass: string;
   selectedSeries: string[];
-  lastTrackQuery: string;
 };
 
 const STORAGE_KEY = "iracing-track-analyzer-selection";

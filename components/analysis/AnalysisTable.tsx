@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { BarChart3, Layers3, Route } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -89,7 +90,14 @@ export function AnalysisTable({ result }: { result: AnalysisResult | null }) {
           <TableBody>
             {result.tracks.map((track) => (
               <TableRow key={track.trackId}>
-                <TableCell className="font-medium">{track.trackName}</TableCell>
+                <TableCell className="font-medium">
+                  <Link
+                    href={`/tracks/${track.trackId}`}
+                    className="text-primary underline-offset-4 hover:underline"
+                  >
+                    {track.trackName}
+                  </Link>
+                </TableCell>
                 <TableCell>{track.totalCount}</TableCell>
                 <TableCell>
                   <Badge

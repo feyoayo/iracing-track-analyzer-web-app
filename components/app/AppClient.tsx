@@ -6,31 +6,20 @@ import { AnalysisFilters } from "@/components/analysis/AnalysisFilters";
 import { AnalysisTable } from "@/components/analysis/AnalysisTable";
 import { ExportButton } from "@/components/analysis/ExportButton";
 import { AppShell } from "@/components/layout/AppShell";
-import { TrackLookupPanel } from "@/components/tracks/TrackLookupPanel";
 import {
   analyzeSchedule,
   type AnalysisResult,
 } from "@/lib/analysis/analyzeSchedule";
-import {
-  normalizePreparedSeason,
-  normalizeTracksIndex,
-} from "@/lib/data/seriesClassOverrides";
+import { normalizePreparedSeason } from "@/lib/data/seriesClassOverrides";
 import { loadSelection, saveSelection } from "@/lib/state/storage";
-import { findTrackUsage } from "@/lib/tracks/findTrackUsage";
-import type { PreparedSeason, TracksIndex } from "@/lib/types";
+import type { PreparedSeason } from "@/lib/types";
 
 export function AppClient({
   season,
-  tracksIndex,
 }: {
   season: PreparedSeason;
-  tracksIndex: TracksIndex;
 }) {
   const normalizedSeason = useMemo(() => normalizePreparedSeason(season), [season]);
-  const normalizedTracksIndex = useMemo(
-    () => normalizeTracksIndex(tracksIndex),
-    [tracksIndex],
-  );
 
   const classes = useMemo(
     () => [...new Set(normalizedSeason.series.map((series) => series.seriesClass))],
@@ -38,7 +27,6 @@ export function AppClient({
   );
   const [selectedClass, setSelectedClass] = useState(classes[0] ?? "");
   const [selectedSeries, setSelectedSeries] = useState<string[]>([]);
-  const [trackQuery, setTrackQuery] = useState("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
 
   const classSeries = useMemo(
@@ -68,7 +56,6 @@ export function AppClient({
           )
         : [],
     );
-    setTrackQuery(saved?.lastTrackQuery || "");
   }, [classes, normalizedSeason.series]);
 
   useEffect(() => {
@@ -76,11 +63,8 @@ export function AppClient({
     saveSelection({
       selectedClass,
       selectedSeries,
-      lastTrackQuery: trackQuery,
     });
-  }, [normalizedSeason, selectedClass, selectedSeries, trackQuery]);
-
-  const usage = findTrackUsage(normalizedSeason, normalizedTracksIndex, trackQuery);
+  }, [normalizedSeason, selectedClass, selectedSeries]);
 
   return (
     <AppShell
@@ -92,7 +76,6 @@ export function AppClient({
             selectedClass={selectedClass}
             seriesNames={classSeries}
             selectedSeries={selectedSeries}
-            trackQuery={trackQuery}
             onClassChange={(value) => {
               setSelectedClass(value);
               setSelectedSeries([]);
@@ -106,13 +89,11 @@ export function AppClient({
             }
             onSelectAllSeries={() => setSelectedSeries(classSeries)}
             onClearSeries={() => setSelectedSeries([])}
-            onTrackQueryChange={setTrackQuery}
           />
           <ExportButton result={result} />
         </>
       }
       analysis={<AnalysisTable result={result} />}
-      trackLookup={<TrackLookupPanel usage={usage} query={trackQuery} />}
     />
   );
 }

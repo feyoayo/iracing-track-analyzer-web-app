@@ -4,7 +4,11 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { parsePreparedSeason, parseTracksIndex } from "@/lib/data/loaders";
-import { findTrackUsage } from "@/lib/tracks/findTrackUsage";
+import {
+  buildTrackDirectory,
+  findTrackUsage,
+  getTrackUsageById,
+} from "@/lib/tracks/findTrackUsage";
 
 const season = parsePreparedSeason(
   readFileSync(
@@ -24,6 +28,16 @@ const index = parseTracksIndex(
 );
 
 describe("findTrackUsage", () => {
+  it("builds a directory of current-season tracks", () => {
+    const tracks = buildTrackDirectory(season);
+
+    expect(tracks[0]).toMatchObject({
+      trackName: "Spa-Francorchamps",
+      currentSeasonAppears: 2,
+    });
+    expect(tracks).toHaveLength(2);
+  });
+
   it("returns current and historical appearances for one track", () => {
     const usage = findTrackUsage(season, index, "spa");
 
@@ -35,5 +49,12 @@ describe("findTrackUsage", () => {
 
   it("returns null for an empty query", () => {
     expect(findTrackUsage(season, index, "   ")).toBeNull();
+  });
+
+  it("returns usage by track id", () => {
+    const usage = getTrackUsageById(season, index, 10);
+
+    expect(usage?.trackName).toBe("Spa-Francorchamps");
+    expect(usage?.history).toHaveLength(2);
   });
 });

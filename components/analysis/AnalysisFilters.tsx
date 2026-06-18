@@ -1,8 +1,5 @@
-import { Search } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -12,19 +9,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 
 type Props = {
   classes: string[];
   selectedClass: string;
   seriesNames: string[];
   selectedSeries: string[];
-  trackQuery: string;
   onClassChange: (value: string) => void;
   onSeriesToggle: (value: string) => void;
   onSelectAllSeries: () => void;
   onClearSeries: () => void;
-  onTrackQueryChange: (value: string) => void;
 };
 
 export function AnalysisFilters(props: Props) {
@@ -98,22 +92,6 @@ export function AnalysisFilters(props: Props) {
             ))}
           </div>
         </ScrollArea>
-      </div>
-
-      <Separator />
-
-      <div className="grid gap-2">
-        <Label htmlFor="track-query">Track lookup</Label>
-        <div className="relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            id="track-query"
-            className="pl-9"
-            value={props.trackQuery}
-            onChange={(event) => props.onTrackQueryChange(event.target.value)}
-            placeholder="Search track name"
-          />
-        </div>
       </div>
     </section>
   );
