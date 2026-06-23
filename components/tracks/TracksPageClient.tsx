@@ -8,6 +8,7 @@ import { ArrowDownAZ, ArrowUpAZ, ArrowUpDown, Search } from "lucide-react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -29,16 +30,26 @@ export function TracksPageClient({
   season,
   authSlot,
   utilitySlot,
+  isAuthenticated,
+  initialOwnedTrackIds,
 }: {
   season: PreparedSeason;
   authSlot?: ReactNode;
   utilitySlot?: ReactNode;
+  isAuthenticated: boolean;
+  initialOwnedTrackIds: number[];
 }) {
   const normalizedSeason = useMemo(() => normalizePreparedSeason(season), [season]);
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [sortKey, setSortKey] = useState<SortKey>("name");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const [ownedTrackIds, setOwnedTrackIds] = useState<Set<number>>(
+    () => new Set(initialOwnedTrackIds),
+  );
+  const [pendingTrackIds, setPendingTrackIds] = useState<Set<number>>(
+    () => new Set(),
+  );
   const deferredQuery = useDeferredValue(query);
 
   const tracks = useMemo(
@@ -183,6 +194,7 @@ export function TracksPageClient({
                       {renderSortIcon("appears")}
                     </button>
                   </TableHead>
+                  {isAuthenticated ? <TableHead>Owned</TableHead> : null}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -197,11 +209,70 @@ export function TracksPageClient({
                       </Link>
                     </TableCell>
                     <TableCell>{track.currentSeasonAppears}</TableCell>
+                    {isAuthenticated ? (
+                      <TableCell>
+                        <Checkbox
+                          aria-label={`Mark ${track.trackName} as owned`}
+                          checked={ownedTrackIds.has(track.trackId)}
+                          disabled={pendingTrackIds.has(track.trackId)}
+                          onCheckedChange={async (checked) => {
+                            const nextOwned = checked === true;
+
+                            setPendingTrackIds((current) => {
+                              const next = new Set(current);
+                              next.add(track.trackId);
+                              return next;
+                            });
+                            setOwnedTrackIds((current) => {
+                              const next = new Set(current);
+                              if (nextOwned) {
+                                next.add(track.trackId);
+                              } else {
+                                next.delete(track.trackId);
+                              }
+                              return next;
+                            });
+
+                            const response = await fetch("/api/owned-tracks", {
+                              method: "PUT",
+                              headers: {
+                                "Content-Type": "application/json",
+                              },
+                              body: JSON.stringify({
+                                trackId: track.trackId,
+                                owned: nextOwned,
+                              }),
+                            });
+
+                            if (!response.ok) {
+                              setOwnedTrackIds((current) => {
+                                const next = new Set(current);
+                                if (nextOwned) {
+                                  next.delete(track.trackId);
+                                } else {
+                                  next.add(track.trackId);
+                                }
+                                return next;
+                              });
+                            }
+
+                            setPendingTrackIds((current) => {
+                              const next = new Set(current);
+                              next.delete(track.trackId);
+                              return next;
+                            });
+                          }}
+                        />
+                      </TableCell>
+                    ) : null}
                   </TableRow>
                 ))}
                 {visibleTracks.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={2} className="py-10 text-muted-foreground">
+                    <TableCell
+                      colSpan={isAuthenticated ? 3 : 2}
+                      className="py-10 text-muted-foreground"
+                    >
                       No tracks match “{query.trim()}”.
                     </TableCell>
                   </TableRow>

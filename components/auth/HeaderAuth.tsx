@@ -1,21 +1,14 @@
 import { SignInButton } from "@/components/auth/AuthButton";
 import { UserMenu } from "@/components/auth/UserMenu";
 import { hasSupabaseEnv } from "@/lib/supabase/env";
-import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/supabase/auth";
 
 export async function HeaderAuth() {
   if (!hasSupabaseEnv()) {
     return null;
   }
 
-  const supabase = await createClient();
-  if (!supabase) {
-    return null;
-  }
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   if (!user) {
     return <div className="flex flex-col items-start gap-3 lg:items-end">

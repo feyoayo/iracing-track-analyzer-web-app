@@ -53,12 +53,17 @@ and:
 
 `../supabase/migrations/20260618_create_feedback.sql`
 
+and:
+
+`../supabase/migrations/20260623_create_user_owned_tracks.sql`
+
 That migration:
 
 - creates `public.profiles`
 - creates a trigger that inserts a profile row on first auth signup
 - enables RLS so users can only access their own profile
 - creates `public.feedback` for in-app feedback submissions
+- creates `public.user_owned_tracks` for authenticated track ownership
 
 ## Deployment
 

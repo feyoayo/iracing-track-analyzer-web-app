@@ -12,6 +12,10 @@ This directory stores SQL migrations for Supabase-backed application data.
   - creates `public.feedback`
   - allows anonymous and authenticated inserts from the app
   - keeps reads out of the public app so review happens in Supabase
+- `migrations/20260623_create_user_owned_tracks.sql`
+  - creates `public.user_owned_tracks`
+  - stores authenticated users' owned track ids
+  - enables per-user RLS for select/insert/delete
 
 ## Apply manually
 
