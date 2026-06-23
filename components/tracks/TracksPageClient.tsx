@@ -23,7 +23,7 @@ import { buildTrackDirectory } from "@/lib/tracks/findTrackUsage";
 import type { PreparedSeason } from "@/lib/types";
 
 const PAGE_SIZE = 12;
-type SortKey = "name" | "appears";
+type SortKey = "name" | "appears" | "owned";
 type SortDirection = "asc" | "desc";
 
 export function TracksPageClient({
@@ -65,7 +65,15 @@ export function TracksPageClient({
         );
 
     return [...matchedTracks].sort((left, right) => {
-      if (sortKey === "appears") {
+      if (sortKey === "owned") {
+        const leftOwned = ownedTrackIds.has(left.trackId) ? 1 : 0;
+        const rightOwned = ownedTrackIds.has(right.trackId) ? 1 : 0;
+        const diff = leftOwned - rightOwned;
+
+        if (diff !== 0) {
+          return sortDirection === "asc" ? diff : -diff;
+        }
+      } else if (sortKey === "appears") {
         const diff = left.currentSeasonAppears - right.currentSeasonAppears;
         if (diff !== 0) {
           return sortDirection === "asc" ? diff : -diff;
@@ -79,7 +87,7 @@ export function TracksPageClient({
 
       return left.trackName.localeCompare(right.trackName);
     });
-  }, [deferredQuery, sortDirection, sortKey, tracks]);
+  }, [deferredQuery, ownedTrackIds, sortDirection, sortKey, tracks]);
 
   const setSorting = (nextKey: SortKey) => {
     startTransition(() => setPage(1));
@@ -194,7 +202,18 @@ export function TracksPageClient({
                       {renderSortIcon("appears")}
                     </button>
                   </TableHead>
-                  {isAuthenticated ? <TableHead>Owned</TableHead> : null}
+                  {isAuthenticated ? (
+                    <TableHead>
+                      <button
+                        type="button"
+                        className="inline-flex items-center gap-2 font-medium text-inherit"
+                        onClick={() => setSorting("owned")}
+                      >
+                        Owned
+                        {renderSortIcon("owned")}
+                      </button>
+                    </TableHead>
+                  ) : null}
                 </TableRow>
               </TableHeader>
               <TableBody>

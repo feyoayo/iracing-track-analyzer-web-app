@@ -57,6 +57,10 @@ and:
 
 `../supabase/migrations/20260623_create_user_owned_tracks.sql`
 
+and:
+
+`../supabase/migrations/20260623_create_user_favorite_series.sql`
+
 That migration:
 
 - creates `public.profiles`
@@ -64,6 +68,7 @@ That migration:
 - enables RLS so users can only access their own profile
 - creates `public.feedback` for in-app feedback submissions
 - creates `public.user_owned_tracks` for authenticated track ownership
+- creates `public.user_favorite_series` for authenticated favorite series
 
 ## Deployment
 

@@ -19,10 +19,16 @@ export function AppClient({
   season,
   authSlot,
   utilitySlot,
+  initialFavoriteSeries,
+  ownedTrackIds,
+  isAuthenticated,
 }: {
   season: PreparedSeason;
   authSlot?: ReactNode;
   utilitySlot?: ReactNode;
+  initialFavoriteSeries: string[];
+  ownedTrackIds: number[];
+  isAuthenticated: boolean;
 }) {
   const normalizedSeason = useMemo(() => normalizePreparedSeason(season), [season]);
 
@@ -45,6 +51,36 @@ export function AppClient({
   useEffect(() => {
     const fallbackClass = classes[0] || "";
     const saved = loadSelection();
+    const favoriteSeries = normalizedSeason.series.filter((series) =>
+      initialFavoriteSeries.includes(series.seriesName),
+    );
+
+    if (favoriteSeries.length > 0) {
+      const favoriteCountsByClass = favoriteSeries.reduce<Record<string, number>>(
+        (accumulator, series) => {
+          accumulator[series.seriesClass] =
+            (accumulator[series.seriesClass] ?? 0) + 1;
+          return accumulator;
+        },
+        {},
+      );
+
+      const nextClass =
+        classes.find(
+          (seriesClass) =>
+            favoriteCountsByClass[seriesClass] ===
+            Math.max(...Object.values(favoriteCountsByClass)),
+        ) ?? fallbackClass;
+
+      setSelectedClass(nextClass);
+      setSelectedSeries(
+        favoriteSeries
+          .filter((series) => series.seriesClass === nextClass)
+          .map((series) => series.seriesName),
+      );
+      return;
+    }
+
     const nextClass =
       saved?.selectedClass && classes.includes(saved.selectedClass)
         ? saved.selectedClass
@@ -61,7 +97,7 @@ export function AppClient({
           )
         : [],
     );
-  }, [classes, normalizedSeason.series]);
+  }, [classes, initialFavoriteSeries, normalizedSeason.series]);
 
   useEffect(() => {
     setResult(analyzeSchedule(normalizedSeason, selectedSeries));
@@ -100,7 +136,13 @@ export function AppClient({
           <ExportButton result={result} />
         </>
       }
-      analysis={<AnalysisTable result={result} />}
+      analysis={
+        <AnalysisTable
+          result={result}
+          ownedTrackIds={ownedTrackIds}
+          isAuthenticated={isAuthenticated}
+        />
+      }
     />
   );
 }

@@ -16,6 +16,10 @@ This directory stores SQL migrations for Supabase-backed application data.
   - creates `public.user_owned_tracks`
   - stores authenticated users' owned track ids
   - enables per-user RLS for select/insert/delete
+- `migrations/20260623_create_user_favorite_series.sql`
+  - creates `public.user_favorite_series`
+  - stores authenticated users' favorite series names
+  - enables per-user RLS for select/insert/delete
 
 ## Apply manually
 

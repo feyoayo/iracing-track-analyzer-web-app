@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import Page from "@/app/page";
 import ProfilePage from "@/app/profile/page";
+import SeriesPage from "@/app/series/page";
 import TracksPage from "@/app/tracks/page";
 
 describe("Page", () => {
@@ -13,6 +14,7 @@ describe("Page", () => {
     expect(screen.getByText("iRacing Schedule Analyzer")).toBeInTheDocument();
     expect(screen.getByText("Active season")).toBeInTheDocument();
     expect(screen.getByText("Export Excel")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Series" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Tracks" })).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /share your feedback/i }),
@@ -26,6 +28,15 @@ describe("Page", () => {
     expect(screen.getByRole("heading", { name: "Tracks" })).toBeInTheDocument();
     expect(screen.getByLabelText("Track lookup")).toBeInTheDocument();
     expect(screen.getByText("Current season tracks")).toBeInTheDocument();
+  });
+
+  it("renders the series directory page", async () => {
+    const element = await SeriesPage();
+    render(element);
+
+    expect(screen.getByRole("heading", { name: "Series" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Series lookup")).toBeInTheDocument();
+    expect(screen.getByText("Current season series")).toBeInTheDocument();
   });
 
   it("renders the profile placeholder page", async () => {

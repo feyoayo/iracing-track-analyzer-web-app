@@ -12,7 +12,15 @@ import {
 } from "@/components/ui/table";
 import type { AnalysisResult } from "@/lib/analysis/analyzeSchedule";
 
-export function AnalysisTable({ result }: { result: AnalysisResult | null }) {
+export function AnalysisTable({
+  result,
+  ownedTrackIds,
+  isAuthenticated,
+}: {
+  result: AnalysisResult | null;
+  ownedTrackIds: number[];
+  isAuthenticated: boolean;
+}) {
   if (!result || result.tracks.length === 0) {
     return (
       <div className="flex min-h-64 flex-col items-start justify-center gap-2 rounded-lg border border-dashed bg-muted/20 p-6">
@@ -82,6 +90,7 @@ export function AnalysisTable({ result }: { result: AnalysisResult | null }) {
               <TableHead>Track</TableHead>
               <TableHead>Overlap</TableHead>
               <TableHead>Priority</TableHead>
+              {isAuthenticated ? <TableHead>Status</TableHead> : null}
               {result.seriesNames.map((seriesName) => (
                 <TableHead key={seriesName}>{seriesName}</TableHead>
               ))}
@@ -108,6 +117,20 @@ export function AnalysisTable({ result }: { result: AnalysisResult | null }) {
                     {track.priority}
                   </Badge>
                 </TableCell>
+                {isAuthenticated ? (
+                  <TableCell>
+                    <Badge
+                      variant="secondary"
+                      className={
+                        ownedTrackIds.includes(track.trackId)
+                          ? "border-transparent bg-green-100 text-green-700"
+                          : "border-transparent bg-red-100 text-red-700"
+                      }
+                    >
+                      {ownedTrackIds.includes(track.trackId) ? "Owned" : "Not owned"}
+                    </Badge>
+                  </TableCell>
+                ) : null}
                 {result.seriesNames.map((seriesName) => (
                   <TableCell key={seriesName} className="text-center">
                     {track.seriesWeeks[seriesName] ? (
