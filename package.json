@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests",
+    "import-pdf": "bun scripts/import-pdf.ts"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.2.0",

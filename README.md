@@ -7,15 +7,18 @@ without using the Discord bot at runtime.
 
 ## Local Data Refresh
 
-1. Parse or update the latest season into SQLite:
-   `python3 parse.py --pdf ./pdfs/2026s3.pdf --season "2026 Season 3" --verbose`
-2. Export prepared artifacts:
-   `python3 export_web_data.py --db ./db/iracing.db --out ./web/data`
+Requires the analyzer repo at `../iracing-track-analyzer` (or `ANALYZER_DIR`):
+
+```bash
+bun scripts/import-pdf.ts ../iracing-track-analyzer/pdfs/2026s4.pdf
+```
+
+The season name is derived from `YYYYsN.pdf`; pass `--season "2026 Season 4"` otherwise.
+Then commit the updated JSON in `data/`.
 
 ## Local Development
 
 ```bash
-cd web
 npm install
 npm run test
 npm run lint
@@ -25,7 +28,7 @@ npm run dev
 
 ## Google Auth Setup
 
-Set these environment variables in `web/.env.local`:
+Set these environment variables in `.env.local`:
 
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=...
@@ -47,19 +50,19 @@ Application user data lives in `public.profiles`, not `auth.users`.
 
 Apply the SQL migration from:
 
-`../supabase/migrations/20260618_create_profiles.sql`
+`supabase/migrations/20260618_create_profiles.sql`
 
 and:
 
-`../supabase/migrations/20260618_create_feedback.sql`
+`supabase/migrations/20260618_create_feedback.sql`
 
 and:
 
-`../supabase/migrations/20260623_create_user_owned_tracks.sql`
+`supabase/migrations/20260623_create_user_owned_tracks.sql`
 
 and:
 
-`../supabase/migrations/20260623_create_user_favorite_series.sql`
+`supabase/migrations/20260623_create_user_favorite_series.sql`
 
 That migration:
 
@@ -72,7 +75,6 @@ That migration:
 
 ## Deployment
 
-- Root Directory: `web`
 - Install Command: `npm install`
 - Build Command: `npm run build`
 - No Python or SQLite runtime is required on Vercel.
