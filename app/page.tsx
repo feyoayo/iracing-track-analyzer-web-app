@@ -2,6 +2,7 @@ import { AppClient } from "@/components/app/AppClient";
 import { HeaderAuth } from "@/components/auth/HeaderAuth";
 import { FeedbackDialog } from "@/components/feedback/FeedbackDialog";
 import { getLatestPreparedData } from "@/lib/data/preparedData";
+import { getOwnedTrackIds, getFavoriteSeriesNames } from "@/lib/db/preferences";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function Page() {
@@ -12,21 +13,12 @@ export default async function Page() {
   } = supabase
     ? await supabase.auth.getUser()
     : { data: { user: null } };
-  const [initialFavoriteSeries, ownedTrackIds] =
-    user && supabase
-      ? await Promise.all([
-          supabase
-            .from("user_favorite_series")
-            .select("series_name")
-            .eq("user_id", user.id)
-            .then((result) => result.data?.map((row) => row.series_name as string) ?? []),
-          supabase
-            .from("user_owned_tracks")
-            .select("track_id")
-            .eq("user_id", user.id)
-            .then((result) => result.data?.map((row) => row.track_id as number) ?? []),
-        ])
-      : [[], []];
+  const [initialFavoriteSeries, ownedTrackIds] = user
+    ? await Promise.all([
+        getFavoriteSeriesNames(user.id).catch(() => []),
+        getOwnedTrackIds(user.id).catch(() => []),
+      ])
+    : [[], []];
 
   return (
     <AppClient

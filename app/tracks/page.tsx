@@ -2,6 +2,7 @@ import { HeaderAuth } from "@/components/auth/HeaderAuth";
 import { FeedbackDialog } from "@/components/feedback/FeedbackDialog";
 import { TracksPageClient } from "@/components/tracks/TracksPageClient";
 import { getLatestPreparedData } from "@/lib/data/preparedData";
+import { getOwnedTrackIds } from "@/lib/db/preferences";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function TracksPage() {
@@ -12,15 +13,7 @@ export default async function TracksPage() {
   } = supabase
     ? await supabase.auth.getUser()
     : { data: { user: null } };
-  const ownedTrackIds =
-    user && supabase
-      ? (
-          await supabase
-            .from("user_owned_tracks")
-            .select("track_id")
-            .eq("user_id", user.id)
-        ).data?.map((row) => row.track_id as number) ?? []
-      : [];
+  const ownedTrackIds = user ? await getOwnedTrackIds(user.id).catch(() => []) : [];
 
   return (
     <TracksPageClient
