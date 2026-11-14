@@ -1,3 +1,4 @@
+import { isUpcomingWeek } from "@/lib/analysis/seasonWeek";
 import { resolvePriority } from "@/lib/analysis/priority";
 import type { PreparedSeason } from "@/lib/types";
 
@@ -27,6 +28,7 @@ type MutableTrack = {
 export function analyzeSchedule(
   season: PreparedSeason,
   selectedSeriesNames: string[],
+  upcomingAt?: Date,
 ): AnalysisResult {
   const selectedSeries = season.series.filter((series) =>
     selectedSeriesNames.includes(series.seriesName),
@@ -35,6 +37,7 @@ export function analyzeSchedule(
 
   for (const series of selectedSeries) {
     for (const week of series.weeks) {
+      if (upcomingAt && !isUpcomingWeek(week.raceDate, upcomingAt)) continue;
       const existing = trackData.get(week.trackId) ?? {
         trackId: week.trackId,
         trackName: week.trackName,

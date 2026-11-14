@@ -23,6 +23,8 @@ export default async function Page() {
   return (
     <AppClient
       season={season}
+      accountIncludePastWeeks={typeof user?.user_metadata?.include_past_weeks === "boolean"
+        ? user.user_metadata.include_past_weeks : null}
       authSlot={authSlot}
       utilitySlot={<FeedbackDialog />}
       initialFavoriteSeries={initialFavoriteSeries}

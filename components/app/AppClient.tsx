@@ -4,13 +4,12 @@ import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 
 import { AnalysisFilters } from "@/components/analysis/AnalysisFilters";
+import { useAnalysisPreference } from "@/components/analysis/useAnalysisPreference";
+import { useScheduleClock } from "@/lib/hooks/useScheduleClock";
 import { AnalysisTable } from "@/components/analysis/AnalysisTable";
 import { ExportButton } from "@/components/analysis/ExportButton";
 import { AppShell } from "@/components/layout/AppShell";
-import {
-  analyzeSchedule,
-  type AnalysisResult,
-} from "@/lib/analysis/analyzeSchedule";
+import { analyzeSchedule } from "@/lib/analysis/analyzeSchedule";
 import { normalizePreparedSeason } from "@/lib/data/seriesClassOverrides";
 import { loadSelection, saveSelection } from "@/lib/state/storage";
 import type { PreparedSeason } from "@/lib/types";
@@ -22,6 +21,7 @@ export function AppClient({
   initialFavoriteSeries,
   ownedTrackIds,
   isAuthenticated,
+  accountIncludePastWeeks = null,
 }: {
   season: PreparedSeason;
   authSlot?: ReactNode;
@@ -29,6 +29,7 @@ export function AppClient({
   initialFavoriteSeries: string[];
   ownedTrackIds: number[];
   isAuthenticated: boolean;
+  accountIncludePastWeeks?: boolean | null;
 }) {
   const normalizedSeason = useMemo(() => normalizePreparedSeason(season), [season]);
 
@@ -38,7 +39,16 @@ export function AppClient({
   );
   const [selectedClass, setSelectedClass] = useState(classes[0] ?? "");
   const [selectedSeries, setSelectedSeries] = useState<string[]>([]);
-  const [result, setResult] = useState<AnalysisResult | null>(null);
+  const now = useScheduleClock();
+  const preference = useAnalysisPreference(isAuthenticated, accountIncludePastWeeks);
+  const exportResult = useMemo(
+    () => analyzeSchedule(normalizedSeason, selectedSeries),
+    [normalizedSeason, selectedSeries],
+  );
+  const result = useMemo(
+    () => now ? analyzeSchedule(normalizedSeason, selectedSeries, preference.includePastWeeks ? undefined : now) : null,
+    [normalizedSeason, selectedSeries, preference.includePastWeeks, now],
+  );
 
   const classSeries = useMemo(
     () =>
@@ -100,7 +110,6 @@ export function AppClient({
   }, [classes, initialFavoriteSeries, normalizedSeason.series]);
 
   useEffect(() => {
-    setResult(analyzeSchedule(normalizedSeason, selectedSeries));
     saveSelection({
       selectedClass,
       selectedSeries,
@@ -109,7 +118,7 @@ export function AppClient({
 
   return (
     <AppShell
-      seasonName={season.seasonName}
+      season={season}
       authSlot={authSlot}
       utilitySlot={utilitySlot}
       controls={
@@ -133,12 +142,17 @@ export function AppClient({
             onSelectAllSeries={() => setSelectedSeries(classSeries)}
             onClearSeries={() => setSelectedSeries([])}
           />
-          <ExportButton result={result} />
+          <ExportButton result={exportResult} />
         </>
       }
       analysis={
         <AnalysisTable
           result={result}
+          includePastWeeks={preference.includePastWeeks}
+          onIncludePastWeeksChange={preference.change}
+          preferenceBusy={preference.busy}
+          preferenceError={preference.error}
+          onRetryPreference={preference.retry}
           ownedTrackIds={ownedTrackIds}
           isAuthenticated={isAuthenticated}
         />

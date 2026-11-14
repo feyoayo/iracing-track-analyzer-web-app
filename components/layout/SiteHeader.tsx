@@ -2,6 +2,8 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { CalendarRange } from "lucide-react";
 
+import { SeasonWeek } from "@/components/layout/SeasonWeek";
+import type { PreparedSeason } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -13,14 +15,14 @@ const NAV_ITEMS = [
 
 export function SiteHeader({
   currentTab,
-  seasonName,
+  season,
   title,
   description,
   authSlot,
   utilitySlot,
 }: {
   currentTab: (typeof NAV_ITEMS)[number]["key"];
-  seasonName: string;
+  season: PreparedSeason;
   title: string;
   description: string;
   authSlot?: ReactNode;
@@ -28,7 +30,6 @@ export function SiteHeader({
 }) {
   return (
     <header className="grid gap-4">
-  {/* {authSlot ? <div>{authSlot}</div> : null} */}
 
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="space-y-2">
@@ -50,12 +51,10 @@ export function SiteHeader({
                 <CalendarRange className="h-5 w-5" />
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
-                  Active season
-                </p>
                 <strong className="block truncate text-sm font-semibold md:text-base">
-                  {seasonName}
+                  {season.seasonName}
                 </strong>
+                <SeasonWeek season={season} />
               </div>
             </CardContent>
           </Card>

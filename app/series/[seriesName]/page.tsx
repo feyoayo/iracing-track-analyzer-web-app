@@ -28,6 +28,7 @@ export default async function SeriesDetailRoute({
 
   return (
     <SeriesDetailPage
+      season={season}
       seasonName={normalizedSeason.seasonName}
       series={series}
       authSlot={authSlot}

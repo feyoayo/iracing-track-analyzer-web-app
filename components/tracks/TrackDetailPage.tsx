@@ -1,3 +1,4 @@
+import type { PreparedSeason } from "@/lib/types";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { ArrowLeft, History, Route } from "lucide-react";
@@ -9,11 +10,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import type { TrackUsageResult } from "@/lib/tracks/findTrackUsage";
 
 export function TrackDetailPage({
+  season,
   seasonName,
   usage,
   authSlot,
   utilitySlot,
 }: {
+  season: PreparedSeason;
   seasonName: string;
   usage: TrackUsageResult;
   authSlot?: ReactNode;
@@ -23,7 +26,7 @@ export function TrackDetailPage({
     <main className="mx-auto flex min-h-screen w-full max-w-[1440px] flex-col gap-4 px-4 py-6 md:px-6">
       <SiteHeader
         currentTab="tracks"
-        seasonName={seasonName}
+        season={season}
         title={usage.trackName}
         description="Current-season usage and prepared historical appearances for the selected track."
         authSlot={authSlot}

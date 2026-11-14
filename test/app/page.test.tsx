@@ -12,7 +12,7 @@ describe("Page", () => {
     render(element);
 
     expect(screen.getByText("iRacing Schedule Analyzer")).toBeInTheDocument();
-    expect(screen.getByText("Active season")).toBeInTheDocument();
+    expect(screen.getByRole("checkbox", { name: "Include past weeks" })).toBeInTheDocument();
     expect(screen.getByText("Export Excel")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Series" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Tracks" })).toBeInTheDocument();

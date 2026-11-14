@@ -14,7 +14,7 @@ export default async function ProfilePage() {
     <main className="mx-auto flex min-h-screen w-full max-w-[1440px] flex-col gap-4 px-4 py-6 md:px-6">
       <SiteHeader
         currentTab="season-planning"
-        seasonName={season.seasonName}
+        season={season}
         title="Profile"
         description="User profile page placeholder."
         authSlot={authSlot}

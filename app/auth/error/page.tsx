@@ -1,14 +1,16 @@
+import { getLatestPreparedData } from "@/lib/data/preparedData";
 import Link from "next/link";
 
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Card, CardContent } from "@/components/ui/card";
 
-export default function AuthErrorPage() {
+export default async function AuthErrorPage() {
+  const { season } = await getLatestPreparedData();
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[1440px] flex-col gap-4 px-4 py-6 md:px-6">
       <SiteHeader
         currentTab="season-planning"
-        seasonName="Unavailable"
+        season={season}
         title="Authentication error"
         description="Google sign-in could not be completed for this session."
       />

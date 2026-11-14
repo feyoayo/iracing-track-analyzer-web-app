@@ -1,3 +1,4 @@
+import type { PreparedSeason } from "@/lib/types";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { ArrowLeft, CalendarDays, Layers3 } from "lucide-react";
@@ -16,11 +17,13 @@ import {
 import type { PreparedSeries } from "@/lib/types";
 
 export function SeriesDetailPage({
+  season,
   seasonName,
   series,
   authSlot,
   utilitySlot,
 }: {
+  season: PreparedSeason;
   seasonName: string;
   series: PreparedSeries;
   authSlot?: ReactNode;
@@ -30,7 +33,7 @@ export function SeriesDetailPage({
     <main className="mx-auto flex min-h-screen w-full max-w-[1440px] flex-col gap-4 px-4 py-6 md:px-6">
       <SiteHeader
         currentTab="series"
-        seasonName={seasonName}
+        season={season}
         title={series.seriesName}
         description="Current-season schedule for the selected series."
         authSlot={authSlot}

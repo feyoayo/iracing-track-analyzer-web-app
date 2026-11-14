@@ -1,3 +1,4 @@
+import type { PreparedSeason } from "@/lib/types";
 import type { ReactNode } from "react";
 
 import { SlidersHorizontal } from "lucide-react";
@@ -6,13 +7,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 
 export function AppShell({
-  seasonName,
+  season,
   controls,
   analysis,
   authSlot,
   utilitySlot,
 }: {
-  seasonName: string;
+  season: PreparedSeason;
   controls: ReactNode;
   analysis: ReactNode;
   authSlot?: ReactNode;
@@ -22,7 +23,7 @@ export function AppShell({
     <main className="mx-auto flex min-h-screen w-full max-w-[1440px] flex-col gap-4 px-4 py-6 md:px-6">
       <SiteHeader
         currentTab="season-planning"
-        seasonName={seasonName}
+        season={season}
         title="Season planning"
         description="Compare series overlap, spot high-value tracks, and export the current season plan."
         authSlot={authSlot}

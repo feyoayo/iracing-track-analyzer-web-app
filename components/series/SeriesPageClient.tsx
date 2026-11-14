@@ -110,7 +110,7 @@ export function SeriesPageClient({
     <main className="mx-auto flex min-h-screen w-full max-w-[1440px] flex-col gap-4 px-4 py-6 md:px-6">
       <SiteHeader
         currentTab="series"
-        seasonName={season.seasonName}
+        season={season}
         title="Series"
         description="Browse the active season series list and mark your favorites for future planning."
         authSlot={authSlot}

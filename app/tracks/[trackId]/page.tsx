@@ -30,6 +30,7 @@ export default async function TrackPage({
 
   return (
     <TrackDetailPage
+      season={season}
       seasonName={season.seasonName}
       usage={usage}
       authSlot={authSlot}

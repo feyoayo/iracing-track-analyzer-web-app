@@ -10,8 +10,18 @@ export function loadSelection(): SavedSelection | null {
     return null;
   }
 
-  const raw = window.localStorage.getItem(STORAGE_KEY);
-  return raw ? (JSON.parse(raw) as SavedSelection) : null;
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    const value: unknown = raw ? JSON.parse(raw) : null;
+    if (!value || typeof value !== "object" || !("selectedClass" in value)
+      || typeof value.selectedClass !== "string" || !("selectedSeries" in value)
+      || !Array.isArray(value.selectedSeries) || !value.selectedSeries.every(item => typeof item === "string")) {
+      return null;
+    }
+    return { selectedClass: value.selectedClass, selectedSeries: value.selectedSeries };
+  } catch {
+    return null;
+  }
 }
 
 export function saveSelection(value: SavedSelection): void {
@@ -19,5 +29,9 @@ export function saveSelection(value: SavedSelection): void {
     return;
   }
 
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
+  } catch {
+    // Selection remains usable when browser storage is blocked or full.
+  }
 }
