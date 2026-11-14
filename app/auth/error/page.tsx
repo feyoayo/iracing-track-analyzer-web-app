@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 export default async function AuthErrorPage() {
   const { season } = await getLatestPreparedData();
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-[1440px] flex-col gap-4 px-4 py-6 md:px-6">
+    <main className="mx-auto flex min-h-screen w-full max-w-[1440px] flex-col gap-4 px-4 pb-24 md:px-6">
       <SiteHeader
         currentTab="season-planning"
         season={season}

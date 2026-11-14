@@ -39,9 +39,17 @@ export function FeedbackDialog() {
       }}
     >
       <DialogTrigger asChild>
-        <Button type="button" variant="outline">
-          <MessageSquareMore className="h-4 w-4" />
-          Share your feedback
+        <Button
+          type="button"
+          aria-label="Share your feedback"
+          className="group fixed right-4 bottom-4 z-40 h-12 gap-0 rounded-full px-4 shadow-lg motion-reduce:transition-none sm:right-6 sm:bottom-6"
+        >
+          <MessageSquareMore aria-hidden="true" className="h-5 w-5 shrink-0" />
+          <span className="grid grid-cols-[0fr] opacity-0 transition-[grid-template-columns,opacity] duration-200 ease-out group-hover:grid-cols-[1fr] group-hover:opacity-100 group-focus-visible:grid-cols-[1fr] group-focus-visible:opacity-100 motion-reduce:transition-none">
+            <span className="overflow-hidden">
+              <span className="pl-2">Share your feedback</span>
+            </span>
+          </span>
         </Button>
       </DialogTrigger>
       <DialogContent>

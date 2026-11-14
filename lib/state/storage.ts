@@ -1,5 +1,5 @@
 export type SavedSelection = {
-  selectedClass: string;
+  selectedClasses: string[];
   selectedSeries: string[];
 };
 
@@ -13,12 +13,19 @@ export function loadSelection(): SavedSelection | null {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     const value: unknown = raw ? JSON.parse(raw) : null;
-    if (!value || typeof value !== "object" || !("selectedClass" in value)
-      || typeof value.selectedClass !== "string" || !("selectedSeries" in value)
+    if (!value || typeof value !== "object" || !("selectedSeries" in value)
       || !Array.isArray(value.selectedSeries) || !value.selectedSeries.every(item => typeof item === "string")) {
       return null;
     }
-    return { selectedClass: value.selectedClass, selectedSeries: value.selectedSeries };
+    const selectedClasses = "selectedClasses" in value
+      ? value.selectedClasses
+      : "selectedClass" in value && typeof value.selectedClass === "string"
+        ? [value.selectedClass]
+        : null;
+    if (!Array.isArray(selectedClasses) || !selectedClasses.every(item => typeof item === "string")) {
+      return null;
+    }
+    return { selectedClasses: [...new Set(selectedClasses)], selectedSeries: value.selectedSeries };
   } catch {
     return null;
   }

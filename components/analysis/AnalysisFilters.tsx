@@ -1,27 +1,38 @@
+import { ChevronDown } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { ClassIcon } from "@/components/analysis/ClassIcon";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 type Props = {
   classes: string[];
-  selectedClass: string;
+  selectedClasses: string[];
   seriesNames: string[];
   selectedSeries: string[];
-  onClassChange: (value: string) => void;
+  onClassToggle: (value: string) => void;
   onSeriesToggle: (value: string) => void;
   onSelectAllSeries: () => void;
   onClearSeries: () => void;
 };
 
+const CLASS_ORDER = ["Sports Car", "Formula", "Oval", "Other"];
+
 export function AnalysisFilters(props: Props) {
+  const orderedClasses = [...props.classes].sort((left, right) => {
+    const leftIndex = CLASS_ORDER.indexOf(left);
+    const rightIndex = CLASS_ORDER.indexOf(right);
+    return (leftIndex < 0 ? CLASS_ORDER.length : leftIndex)
+      - (rightIndex < 0 ? CLASS_ORDER.length : rightIndex);
+  });
+
   return (
     <section className="grid gap-5">
       <div className="flex items-start justify-between gap-3">
@@ -37,19 +48,43 @@ export function AnalysisFilters(props: Props) {
       </div>
 
       <div className="grid gap-2">
-        <Label htmlFor="class-select">Class</Label>
-        <Select value={props.selectedClass} onValueChange={props.onClassChange}>
-          <SelectTrigger id="class-select">
-            <SelectValue placeholder="Choose class" />
-          </SelectTrigger>
-          <SelectContent>
-            {props.classes.map((value) => (
-              <SelectItem key={value} value={value}>
+        <Label htmlFor="class-select">Classes</Label>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              id="class-select"
+              variant="outline"
+              aria-label={`Classes: ${orderedClasses.filter(value => props.selectedClasses.includes(value)).join(", ") || "Choose classes"}`}
+              className="h-auto min-h-10 w-full justify-between px-3 py-2 font-normal"
+            >
+              <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-left">
+                {props.selectedClasses.length === 0 ? "Choose classes" : orderedClasses
+                  .filter(value => props.selectedClasses.includes(value))
+                  .map(value => (
+                    <span key={value} className="inline-flex items-center gap-2">
+                      <ClassIcon seriesClass={value} />
+                      {value}
+                    </span>
+                  ))}
+              </span>
+              <ChevronDown aria-hidden="true" className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-[var(--radix-dropdown-menu-trigger-width)] rounded-md">
+            {orderedClasses.map((value) => (
+              <DropdownMenuCheckboxItem
+                key={value}
+                checked={props.selectedClasses.includes(value)}
+                onCheckedChange={() => props.onClassToggle(value)}
+                onSelect={(event) => event.preventDefault()}
+                className="gap-2"
+              >
+                <ClassIcon seriesClass={value} />
                 {value}
-              </SelectItem>
+              </DropdownMenuCheckboxItem>
             ))}
-          </SelectContent>
-        </Select>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <div className="grid gap-3">
@@ -77,6 +112,9 @@ export function AnalysisFilters(props: Props) {
 
         <ScrollArea className="h-72 rounded-md border bg-muted/30">
           <div className="grid p-1">
+            {props.selectedClasses.length === 0 ? (
+              <p className="px-3 py-4 text-sm text-muted-foreground">Choose at least one class to see its series.</p>
+            ) : null}
             {props.seriesNames.map((name) => (
               <label
                 key={name}

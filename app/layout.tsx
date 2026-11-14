@@ -3,7 +3,7 @@ import "./globals.css";
 import { Analytics } from '@vercel/analytics/next';
 
 export const metadata: Metadata = {
-  title: "iRacing Schedule Analyzer",
+  title: "iR Schedule Analyzer",
   description: "Current-season analysis and track lookup",
 };
 
