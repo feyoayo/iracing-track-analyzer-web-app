@@ -2,6 +2,7 @@ import { HeaderAuth } from "@/components/auth/HeaderAuth";
 import { FeedbackDialog } from "@/components/feedback/FeedbackDialog";
 import { SeriesPageClient } from "@/components/series/SeriesPageClient";
 import { getLatestPreparedData } from "@/lib/data/preparedData";
+import { getFavoriteSeriesNames } from "@/lib/db/preferences";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function SeriesPage() {
@@ -12,15 +13,7 @@ export default async function SeriesPage() {
   } = supabase
     ? await supabase.auth.getUser()
     : { data: { user: null } };
-  const initialFavoriteSeries =
-    user && supabase
-      ? (
-          await supabase
-            .from("user_favorite_series")
-            .select("series_name")
-            .eq("user_id", user.id)
-        ).data?.map((row) => row.series_name as string) ?? []
-      : [];
+  const initialFavoriteSeries = user ? await getFavoriteSeriesNames(user.id).catch(() => []) : [];
 
   return (
     <SeriesPageClient
