@@ -18,4 +18,21 @@ describe("baseline equivalence", () => {
     expect(() => assertDifferentDatabases("postgres://a@localhost/a", "postgres://a@localhost/b")).not.toThrow();
     expect(() => assertDifferentDatabases("https://example.com", "postgres://a@localhost/b")).toThrow("PostgreSQL");
   });
+  it("distinguishes Supabase projects on a shared pooler", () => {
+    expect(() => assertDifferentDatabases("postgresql://postgres.aaaaaaaaaaaaaaaaaaaa:one@aws-0-eu-west-1.pooler.supabase.com:5432/postgres", "postgresql://postgres.bbbbbbbbbbbbbbbbbbbb:two@aws-0-eu-west-1.pooler.supabase.com:5432/postgres")).not.toThrow();
+  });
+  it("recognizes the same Supabase project across roles, direct and pooled URLs", () => {
+    expect(() => assertDifferentDatabases("postgresql://postgres@db.aaaaaaaaaaaaaaaaaaaa.supabase.co:5432/postgres", "postgresql://app_runtime.aaaaaaaaaaaaaaaaaaaa@aws-0-eu-west-1.pooler.supabase.com:6543/postgres")).toThrow("different databases");
+  });
+
+  it("rejects incomplete security-definer ownership context even when both snapshots omit it", () => {
+    const incomplete = [{ section: "function", key: "handle_new_user()", definition: { securityDefiner: true, definition: "function body" } }];
+    expect(compareSnapshots(incomplete, incomplete)).toContain("function:handle_new_user(): ownership context missing");
+  });
+  it("detects changed function ownership and owner privilege context", () => {
+    const reference = [{ section: "function", key: "handle_new_user()", definition: { securityDefiner: true, owner: "postgres", ownerContext: { bypassRls: true } } }];
+    const changed = [{ section: "function", key: "handle_new_user()", definition: { securityDefiner: true, owner: "restricted", ownerContext: { bypassRls: false } } }];
+    expect(compareSnapshots(changed, reference)).toEqual(["function:handle_new_user(): differs"]);
+  });
+
 });

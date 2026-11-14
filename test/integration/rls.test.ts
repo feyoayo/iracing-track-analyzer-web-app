@@ -62,14 +62,24 @@ it("enforces RLS even when a query omits a user filter", async () => {
   expect(await withDatabaseIdentity(a, (tx) => tx.userOwnedTrack.findMany({ select: { userId: true } }))).toEqual([{ userId: a }]);
   await expect(withDatabaseIdentity(a, (tx) => tx.userOwnedTrack.createMany({ data: [{ userId: b, trackId: 13 }] }))).rejects.toThrow();
 });
-it("allows insert-only feedback and denies feedback reads", async () => {
-  await saveFeedback({ userId: null, name: " ", message: marker, pagePath: "/tracks" });
-  await saveFeedback({ userId: ids[0], name: null, message: marker, pagePath: "/" });
-  const rows = (await admin.query("SELECT user_id, name FROM public.feedback WHERE message=$1", [marker])).rows;
-  expect(rows).toEqual(expect.arrayContaining([{ user_id: null, name: null }, { user_id: ids[0], name: null }]));
-  expect(await withDatabaseIdentity(null, (tx) => tx.feedback.findMany())).toEqual([]);
-  expect(await withDatabaseIdentity(ids[0], (tx) => tx.feedback.findMany())).toEqual([]);
+it("allows feedback insertion when SELECT is explicitly revoked", async () => {
+  const { rows: grants } = await admin.query("SELECT grantee, is_grantable FROM information_schema.table_privileges WHERE table_schema='public' AND table_name='feedback' AND privilege_type='SELECT' AND grantee IN ('anon', 'authenticated', 'PUBLIC')");
+  try {
+    await admin.query("REVOKE SELECT ON public.feedback FROM anon, authenticated, PUBLIC");
+    await saveFeedback({ userId: null, name: " ", message: marker, pagePath: "/tracks" });
+    await saveFeedback({ userId: ids[0], name: null, message: marker, pagePath: "/" });
+    const rows = (await admin.query("SELECT user_id, name FROM public.feedback WHERE message=$1", [marker])).rows;
+    expect(rows).toEqual(expect.arrayContaining([{ user_id: null, name: null }, { user_id: ids[0], name: null }]));
+    await expect(withDatabaseIdentity(null, (tx) => tx.feedback.findMany())).rejects.toThrow();
+    await expect(withDatabaseIdentity(ids[0], (tx) => tx.feedback.findMany())).rejects.toThrow();
+  } finally {
+    for (const grant of grants) {
+      if (!["anon", "authenticated", "PUBLIC"].includes(grant.grantee)) throw new Error("Unexpected role");
+      await admin.query(`GRANT SELECT ON public.feedback TO ${grant.grantee}${grant.is_grantable === "YES" ? " WITH GRANT OPTION" : ""}`);
+    }
+  }
 });
+
 it("resets role/subject after success and rollback on a single reused connection", async () => {
   const read = (id: string | null) => withDatabaseIdentity(id, (tx) => tx.$queryRaw<Array<{ role: string; subject: string }>>`SELECT current_user AS role, current_setting('request.jwt.claim.sub', true) AS subject`);
   await expect(withDatabaseIdentity(ids[0], async () => { throw new Error("rollback fixture"); })).rejects.toThrow("rollback fixture");

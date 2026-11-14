@@ -45,3 +45,17 @@ it("preserves modeled schema and auth foreign keys in a migration diff", () => {
   const sql = prismaCommand(targets.direct, ["migrate", "diff", "--from-migrations", "prisma/migrations", "--to-schema", "prisma/schema.prisma", "--script", "--exit-code"]);
   expect(sql).not.toMatch(/(?:CREATE|ALTER|DROP)\s+TABLE/i);
 });
+
+it("detects security-definer owner drift even when the function body stays unchanged", async () => {
+  const { rows: [original] } = await legacy.query("SELECT pg_get_userbyid(proowner) AS owner FROM pg_proc WHERE oid='public.handle_new_user()'::regprocedure");
+  const { rows: [privilege] } = await legacy.query("SELECT has_schema_privilege('authenticated', 'public', 'CREATE') AS allowed");
+  try {
+    if (!privilege.allowed) await legacy.query("GRANT CREATE ON SCHEMA public TO authenticated");
+    await legacy.query("ALTER FUNCTION public.handle_new_user() OWNER TO authenticated");
+    expect(await verifyBaseline(targets.baseline, targets.direct)).toContain("function:handle_new_user(): differs");
+  } finally {
+    const quotedOwner = '"' + original.owner.replace(/"/g, '""') + '"';
+    await legacy.query(`ALTER FUNCTION public.handle_new_user() OWNER TO ${quotedOwner}`);
+    if (!privilege.allowed) await legacy.query("REVOKE CREATE ON SCHEMA public FROM authenticated");
+  }
+});

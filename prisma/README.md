@@ -68,7 +68,7 @@ just the repository SQL.
    ```
 
    This is read-only on both connections. It compares application columns,
-   defaults, keys/checks/indexes, policies, grants, RLS flags, function definitions,
+   defaults, keys/checks/indexes, policies, grants, RLS flags, function definitions/owners and their effective profile-write privileges,
    trigger attachments and pgcrypto placement. It does not read application rows.
    A mismatch is an adoption blocker. Resolve the actual differences explicitly,
    review any changes, and rerun; never reset or blindly mark the baseline applied.
@@ -170,7 +170,9 @@ Set the test variables from `.env.example`:
 - SHADOW_DATABASE_URL points to the disposable shadow described above, for
   history-to-model drift verification.
 
-URLs must differ from configured live DATABASE_URL/DIRECT_URL. Unset live
+URLs must differ from configured live DATABASE_URL/DIRECT_URL. Supabase project
+references are recognized across direct and shared-pooler connections, so changing
+only the database role/password/connection mode does not bypass this check. Unset live
 variables in the test shell if necessary; do not relabel a live URL as TEST_*.
 The runtime URL must connect to the same underlying database as TEST_DIRECT_URL;
 a cross-connection advisory-lock check verifies that before writes begin.
@@ -182,8 +184,7 @@ npm run test:integration
 The suite replays the Prisma baseline in the first environment, independently
 replays the legacy SQL in the second, checks catalog equivalence, adopts the
 legacy baseline and confirms fixture preservation. It also checks policy/column
-drift detection, two Auth users' RLS isolation, duplicate toggles, insert-only
-feedback, single-connection identity cleanup after success/failure, profile
+drift detection, two Auth users' RLS isolation, duplicate toggles, feedback inserts with SELECT explicitly revoked, single-connection identity cleanup after success/failure, profile
 triggers and deletion behavior. Fixture users/feedback are cleaned up; schema and
 migration history remain in these disposable projects.
 

@@ -10,6 +10,13 @@ export type CatalogRow = { section: string; key: string; definition: unknown };
 function databaseIdentity(value: string): string {
   const url = new URL(value);
   if (!["postgres:", "postgresql:"].includes(url.protocol)) throw new Error("A PostgreSQL URL is required.");
+  // Shared Supabase poolers route by project ref in the username, not by host.
+  const direct = /^db\.([a-z0-9]+)\.supabase\.co$/.exec(url.hostname);
+  const pooled = url.hostname.endsWith(".pooler.supabase.com")
+    ? /\.([a-z0-9]+)$/.exec(decodeURIComponent(url.username))
+    : null;
+  const project = direct?.[1] ?? pooled?.[1];
+  if (project) return `supabase:${project}${url.pathname}`;
   return `${url.hostname}:${url.port || "5432"}${url.pathname}`;
 }
 
@@ -18,13 +25,18 @@ export function assertDifferentDatabases(a: string, b: string): void {
 }
 
 export function compareSnapshots(actual: CatalogRow[], reference: CatalogRow[]): string[] {
+  const incompleteOwners = new Set([...actual, ...reference].filter((row) => {
+    if (row.section !== "function" || !row.definition || typeof row.definition !== "object") return false;
+    const definition = row.definition as Record<string, unknown>;
+    return definition.securityDefiner === true && (!definition.owner || !definition.ownerContext);
+  }).map((row) => `${row.section}:${row.key}: ownership context missing`));
   const left = new Map(actual.map((row) => [`${row.section}:${row.key}`, row.definition]));
   const right = new Map(reference.map((row) => [`${row.section}:${row.key}`, row.definition]));
-  return [...new Set([...left.keys(), ...right.keys()])].sort().flatMap((key) => {
+  return [...incompleteOwners, ...[...new Set([...left.keys(), ...right.keys()])].sort().flatMap((key) => {
     if (!left.has(key)) return [`${key}: missing`];
     if (!right.has(key)) return [`${key}: unexpected`];
     return isDeepStrictEqual(left.get(key), right.get(key)) ? [] : [`${key}: differs`];
-  });
+  })].sort();
 }
 
 export async function readSnapshot(connectionString: string): Promise<CatalogRow[]> {

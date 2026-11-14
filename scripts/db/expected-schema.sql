@@ -39,7 +39,16 @@ WITH app_tables AS (
   UNION ALL
   SELECT 'function', p.proname || '(' || pg_get_function_identity_arguments(p.oid) || ')',
     jsonb_build_object('definition', pg_get_functiondef(p.oid), 'securityDefiner', p.prosecdef,
-      'config', p.proconfig)
+      'config', p.proconfig, 'owner', pg_get_userbyid(p.proowner),
+      'ownerContext', jsonb_build_object(
+        'superuser', (SELECT rolsuper FROM pg_roles WHERE oid = p.proowner),
+        'bypassRls', (SELECT rolbypassrls FROM pg_roles WHERE oid = p.proowner),
+        'publicUsage', has_schema_privilege(p.proowner, 'public', 'USAGE'),
+        'ownsProfiles', p.proowner = (SELECT relowner FROM pg_class WHERE oid = to_regclass('public.profiles')),
+        'profilesSelect', has_table_privilege(p.proowner, 'public.profiles', 'SELECT'),
+        'profilesInsert', has_table_privilege(p.proowner, 'public.profiles', 'INSERT'),
+        'profilesUpdate', has_table_privilege(p.proowner, 'public.profiles', 'UPDATE')))
+
   FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
   WHERE n.nspname = 'public' AND p.proname IN ('handle_new_user', 'set_updated_at')
   UNION ALL
