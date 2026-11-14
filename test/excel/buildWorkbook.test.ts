@@ -29,7 +29,7 @@ describe("buildWorkbook", () => {
       "Full Schedule",
     ]);
 
-    const matrix = XLSX.utils.sheet_to_json(
+    const matrix = XLSX.utils.sheet_to_json<unknown[]>(
       workbook.Sheets["Track x Series Matrix"],
       {
         header: 1,

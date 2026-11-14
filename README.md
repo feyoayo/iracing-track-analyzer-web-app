@@ -44,34 +44,29 @@ Then configure Google in Supabase and Google Cloud:
 
 The app uses the callback route `/auth/callback` for the PKCE code exchange.
 
-## Profiles table
+## Database access and migrations
 
-Application user data lives in `public.profiles`, not `auth.users`.
+Application tables use Prisma ORM; Google login/session management stays in
+Supabase Auth. Set the server-only database URLs from `.env.example` as well as
+the public Auth settings above. See [the Prisma workflow](prisma/README.md) for
+connection roles, baseline adoption, migration creation and integration tests.
 
-Apply the SQL migration from:
+Existing databases must be verified and baselined before using Prisma migrations.
+Do not replay the baseline over existing tables or run a reset. Historical SQL
+files under `supabase/migrations` are retained for reference; all new application
+migrations belong in `prisma/migrations`.
 
-`supabase/migrations/20260618_create_profiles.sql`
+Quick offline checks:
 
-and:
+```bash
+npm run db:validate
+npm run db:generate
+npm run test
+npm run lint
+npm run build
+```
 
-`supabase/migrations/20260618_create_feedback.sql`
-
-and:
-
-`supabase/migrations/20260623_create_user_owned_tracks.sql`
-
-and:
-
-`supabase/migrations/20260623_create_user_favorite_series.sql`
-
-That migration:
-
-- creates `public.profiles`
-- creates a trigger that inserts a profile row on first auth signup
-- enables RLS so users can only access their own profile
-- creates `public.feedback` for in-app feedback submissions
-- creates `public.user_owned_tracks` for authenticated track ownership
-- creates `public.user_favorite_series` for authenticated favorite series
+Database migrations run explicitly, separately from install/build/start.
 
 ## Deployment
 

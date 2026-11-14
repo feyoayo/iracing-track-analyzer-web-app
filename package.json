@@ -12,9 +12,11 @@
     "postinstall": "prisma generate",
     "db:generate": "prisma generate",
     "db:validate": "prisma validate",
-    "db:migrate:create": "prisma migrate dev --create-only",
+    "db:migrate:create": "tsx scripts/db/create-migration.ts",
     "db:migrate:deploy": "prisma migrate deploy",
-    "db:migrate:status": "prisma migrate status"
+    "db:migrate:status": "prisma migrate status",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "db:verify-baseline": "tsx scripts/db/verify-baseline.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.1",

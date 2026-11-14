@@ -1,6 +1,12 @@
 # Supabase
 
-This directory stores SQL migrations for Supabase-backed application data.
+Historical application SQL, retained for audit and legacy-baseline tests.
+
+**Retired migration workflow:** do not add new files here or apply this history
+to a database already managed by Prisma. New migrations live in
+`prisma/migrations`. Follow [Prisma adoption and setup](../prisma/README.md).
+The descriptions below document the old schema; the manual procedure at the end
+is historical, not the current setup workflow.
 
 ## Current migration
 
@@ -21,7 +27,7 @@ This directory stores SQL migrations for Supabase-backed application data.
   - stores authenticated users' favorite series names
   - enables per-user RLS for select/insert/delete
 
-## Apply manually
+## Historical manual procedure (retired)
 
 If you are not using the Supabase CLI yet, open the Supabase Dashboard SQL Editor
 and run the migration file contents there.
