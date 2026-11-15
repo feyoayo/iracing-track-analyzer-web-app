@@ -1,5 +1,9 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+vi.mock("@/lib/data/preparedData", async () => {
+  const { default: season } = await import("../fixtures/prepared-data/schedules/2026-season-3.json");
+  return { getLatestPreparedData: async () => ({ season }) };
+});
 
 import Page from "@/app/page";
 import ProfilePage from "@/app/profile/page";
@@ -11,7 +15,7 @@ describe("Page", () => {
     const element = await Page();
     render(element);
 
-    expect(screen.getByText("iRacing Schedule Analyzer")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Schedule Analyzer — Home" })).toHaveAttribute("href", "/");
     expect(screen.getByRole("checkbox", { name: "Include past weeks" })).toBeInTheDocument();
     expect(screen.getByText("Export Excel")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Series" })).toBeInTheDocument();

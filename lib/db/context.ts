@@ -7,6 +7,7 @@ import { getPrisma } from "@/lib/db/client";
 export async function withDatabaseIdentity<T>(
   userId: string | null,
   operation: (tx: Prisma.TransactionClient) => Promise<T>,
+  options: { isolationLevel?: Prisma.TransactionIsolationLevel } = {},
 ): Promise<T> {
   return getPrisma().$transaction(async (tx) => {
     if (userId === null) {
@@ -17,5 +18,5 @@ export async function withDatabaseIdentity<T>(
     const claims = userId === null ? { role: "anon" } : { sub: userId, role: "authenticated" };
     await tx.$queryRaw`SELECT set_config('request.jwt.claim.sub', ${userId ?? ""}, true), set_config('request.jwt.claims', ${JSON.stringify(claims)}, true)`;
     return operation(tx);
-  });
+  }, options);
 }

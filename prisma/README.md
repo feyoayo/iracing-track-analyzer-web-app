@@ -12,6 +12,13 @@ migration commands require DIRECT_URL. Never expose these URLs as NEXT_PUBLIC_.
 npm install and npm run build generate the client only. They never run migrations.
 See the adoption and integration instructions below before changing any database.
 
+For a provider-specific trusted root, set `DATABASE_SSL_CA_FILE` to the local CA
+file. Runtime/import connections use strict verification. Migration commands use
+`scripts/db/prisma-cli.mjs`: a loopback-only bridge verifies the remote TLS CA and
+hostname, avoiding native platform trust differences. Use `npm run db:cli -- ...`
+instead of invoking Prisma directly when that CA is configured. Provision the
+public CA file separately in deployed environments; `ssl-cert/` is Git-ignored.
+
 ## Runtime roles and connections
 
 Use a dedicated `NOINHERIT NOBYPASSRLS` login for DATABASE_URL, with permission
@@ -78,7 +85,7 @@ just the repository SQL.
    its history entry on the existing target:
 
    ```bash
-   npx prisma migrate resolve --applied 0_init
+   npm run db:cli -- migrate resolve --applied 0_init
    npm run db:migrate:status
    npm run db:migrate:deploy
    ```
@@ -135,6 +142,64 @@ Auth model. Its drift workflow may include Supabase objects the app does not own
 Keep Prisma CLI/client/adapter patch versions synchronized and reverify generated
 SQL when upgrading the external-table preview feature.
 
+## Series and schedule rollout
+
+`20261115101103_create_series_schedule` adds `seasons`, `series`, and
+`series_weeks`. It includes RLS, read-only public grants, category/week CHECKs,
+the one-current-season partial index, and a same-season `linked_to` relation.
+It does not import schedule rows. Installation/build/start never run it.
+
+After adopting `0_init` on an existing project (above), or deploying migrations
+to an empty environment, run the backfill separately using an administrator's
+`DIRECT_URL`:
+
+```bash
+npm run db:migrate:deploy
+npm run db:backfill-series -- test/fixtures/bootstrap-schedules --current 2026-season-4
+npm run db:migrate:status
+```
+
+Expected source counts before any later schedule changes:
+
+| Season | Series | Weeks |
+| --- | ---: | ---: |
+| 2025 Season 4 | 99 | 1310 |
+| 2026 Season 1 | 110 | 1296 |
+| 2026 Season 2 | 108 | 1424 |
+| 2026 Season 3 | 109 | 1442 |
+| 2026 Season 4 | 112 | 1478 |
+| Total | 538 | 6950 |
+
+Verify on the target:
+
+```sql
+SELECT s.slug, s.is_current,
+       count(DISTINCT r.id) AS series_count, count(w.series_id) AS week_count
+FROM public.seasons s
+LEFT JOIN public.series r ON r.season_id = s.id
+LEFT JOIN public.series_weeks w ON w.series_id = r.id
+GROUP BY s.id ORDER BY s.year, s.season_number;
+```
+
+Configure the restricted `DATABASE_URL` runtime role described above and verify
+series browsing, planning/export, and track detail pages before deploying
+application traffic or removing source schedules. Future imports use
+`db:import-series -- <file> [--current]`; importing a future schedule does not
+automatically select it. Initial links are NULL; configure confirmed pairs
+explicitly. Re-imports preserve links unless their target is removed.
+
+Prisma warns that composite `SetNull` contains required `season_id`. The reviewed
+migration uses PostgreSQL's `ON DELETE SET NULL (linked_to)` column list: only
+the optional link is cleared. Prisma cannot express that column list, so preserve
+the custom SQL when generating future relation changes. The schema and history
+have been checked with `prisma migrate diff`; do not replace this FK with the
+default full-column SetNull DDL.
+
+The baseline verifier intentionally compares only the four original application
+tables and their associated objects, for safe legacy adoption. It does not prove
+the new schedules are migrated or populated; use schedule tests and the explicit
+count/read checks above for that.
+
 ## Tests
 
 Offline checks:
@@ -149,8 +214,13 @@ npm run build
 ```
 
 The normal suite includes API authentication/validation/errors, page fallbacks,
-scoped repositories, context setup and migration-tool guards. It excludes live
-integration tests. Mocked database boundaries do not prove actual RLS behavior.
+scoped repositories, context setup and migration-tool guards. Schedule tests use
+pinned PGlite (embedded PostgreSQL) with real Prisma connections to check the new
+SQL migration, permissions, links, transactional imports, all five source seasons,
+and PDF orchestration with a fake analyzer. They require local loopback socket
+access; a restricted sandbox may need permission to run `npm test`.
+The suite excludes live Supabase integration tests. Embedded tests do not prove
+Supabase Auth behavior or real multi-session locking under concurrency.
 
 For real integration tests, provision **two fresh, empty disposable Supabase
 environments** matching the deployed PostgreSQL version. They must contain no
