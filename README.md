@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This app provides current-season analysis, Excel export, and track lookup
+This app provides current-season analysis and track lookup
 without using the Discord bot at runtime.
 
 ## Local Data Refresh

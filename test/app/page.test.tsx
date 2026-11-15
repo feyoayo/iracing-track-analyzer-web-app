@@ -11,9 +11,9 @@ describe("Page", () => {
     const element = await Page();
     render(element);
 
-    expect(screen.getByText("iRacing Schedule Analyzer")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Schedule Analyzer — Home" })).toBeInTheDocument();
     expect(screen.getByRole("checkbox", { name: "Include past weeks" })).toBeInTheDocument();
-    expect(screen.getByText("Export Excel")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /export/i })).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Series" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Tracks" })).toBeInTheDocument();
     expect(
