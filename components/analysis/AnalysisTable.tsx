@@ -73,7 +73,7 @@ export function AnalysisTable({
         <div className="flex min-h-64 flex-col items-start justify-center gap-2 rounded-lg border border-dashed bg-muted/20 p-6">
           <h2 className="text-lg font-semibold">Select at least one series</h2>
           <p className="max-w-xl text-sm text-muted-foreground">
-            The table and Excel export update from the selected class and series.
+            The table updates from the selected class and series.
           </p>
         </div>
       ) : result.tracks.length === 0 ? (

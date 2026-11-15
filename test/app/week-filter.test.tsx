@@ -1,9 +1,7 @@
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import * as XLSX from "xlsx";
 import { AppClient } from "@/components/app/AppClient";
 import { season } from "@/test/fixtures/weeklySeason";
-vi.mock("xlsx", async importOriginal => ({ ...await importOriginal<typeof import("xlsx")>(), writeFile: vi.fn() }));
 const props = { season, initialFavoriteSeries: ["Weekly", "Special"], ownedTrackIds: [], isAuthenticated: false };
 beforeEach(() => {
   localStorage.clear();
@@ -36,13 +34,5 @@ describe("current week interface", () => {
     vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => { throw new Error("blocked"); });
     render(<AppClient {...props} />);
     expect(await screen.findByText("2 tracks across 2 series")).toBeInTheDocument();
-  });
-  it("keeps full-season Excel output while filtering the table", async () => {
-    render(<AppClient {...props} />);
-    await waitFor(() => expect(screen.getByText("2 tracks across 2 series")).toBeInTheDocument());
-    fireEvent.click(screen.getByRole("button", { name: "Export Excel" }));
-    const workbook = vi.mocked(XLSX.writeFile).mock.calls.at(-1)?.[0];
-    expect(workbook).toBeDefined();
-    expect(XLSX.utils.sheet_to_csv(workbook!.Sheets["Full Schedule"])).toContain("Past track");
   });
 });
