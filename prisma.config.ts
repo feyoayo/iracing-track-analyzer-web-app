@@ -1,6 +1,7 @@
 import { config } from "dotenv";
 import { readFileSync } from "node:fs";
 import { defineConfig } from "prisma/config";
+import { prismaMigrationUrl } from "./lib/db/ssl";
 
 config({ path: ".env.local", quiet: true });
 config({ path: ".env", quiet: true });
@@ -15,7 +16,7 @@ export default defineConfig({
   },
   // Undefined permits offline generate/validate. Database commands require DIRECT_URL.
   datasource: {
-    url: process.env.DIRECT_URL,
+    url: prismaMigrationUrl(process.env.DIRECT_URL),
     shadowDatabaseUrl: process.env.SHADOW_DATABASE_URL,
   },
 });

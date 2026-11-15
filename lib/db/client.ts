@@ -2,6 +2,7 @@ import "server-only";
 
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@/lib/generated/prisma/client";
+import { postgresConnectionConfig } from "@/lib/db/ssl";
 
 const databaseGlobal = globalThis as unknown as { iracingPrisma?: PrismaClient };
 let client: PrismaClient | undefined;
@@ -15,7 +16,7 @@ export function getPrisma(): PrismaClient {
     return (client = databaseGlobal.iracingPrisma);
   }
   const adapter = new PrismaPg({
-    connectionString,
+    ...postgresConnectionConfig(connectionString),
     max: 5,
     connectionTimeoutMillis: 5000,
     idleTimeoutMillis: 30000,

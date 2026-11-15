@@ -6,6 +6,8 @@ export type PreparedWeek = {
 };
 
 export type PreparedSeries = {
+  id?: number;
+  linkedTo?: number | null;
   seriesName: string;
   seriesClass: string;
   weeks: PreparedWeek[];

@@ -1,5 +1,8 @@
-import metadata from "@/data/metadata.json";
+import "server-only";
+import { connection } from "next/server";
 import tracksIndex from "@/data/tracks-index.json";
+import { getCurrentPreparedSeason } from "@/lib/db/schedules";
+import { mergeSeasonIntoTracksIndex } from "@/lib/data/trackHistory";
 
 import type { PreparedMetadata, PreparedSeason, TracksIndex } from "@/lib/types";
 
@@ -8,13 +11,13 @@ export async function getLatestPreparedData(): Promise<{
   season: PreparedSeason;
   tracksIndex: TracksIndex;
 }> {
-  const season = (
-    await import(`@/data/schedules/${metadata.latestSeasonSlug}.json`)
-  ).default as PreparedSeason;
+  // Database schedules are request-time data; builds must not open a connection.
+  await connection();
+  const season = await getCurrentPreparedSeason();
 
   return {
-    metadata: metadata as PreparedMetadata,
+    metadata: { latestSeasonSlug: season.seasonSlug, latestSeasonName: season.seasonName },
     season,
-    tracksIndex: tracksIndex as TracksIndex,
+    tracksIndex: mergeSeasonIntoTracksIndex(tracksIndex as TracksIndex, season),
   };
 }

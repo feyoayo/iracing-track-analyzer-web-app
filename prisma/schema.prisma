@@ -62,3 +62,50 @@ model UserFavoriteSeries {
   @@map("user_favorite_series")
   @@schema("public")
 }
+
+model Season {
+  id           Int      @id @default(autoincrement())
+  slug         String   @unique
+  name         String
+  year         Int
+  seasonNumber Int      @map("season_number")
+  isCurrent    Boolean  @default(false) @map("is_current")
+  series       Series[]
+
+  @@unique([year, seasonNumber])
+  @@map("seasons")
+  @@schema("public")
+}
+
+model Series {
+  id       Int          @id @default(autoincrement())
+  seasonId Int          @map("season_id")
+  name     String
+  category String
+  linkedTo Int?         @map("linked_to")
+  season   Season       @relation(fields: [seasonId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  // Custom migration SQL clears only linked_to, preserving required season_id.
+  linked   Series?      @relation("SeriesVariants", fields: [seasonId, linkedTo], references: [seasonId, id], onDelete: SetNull, onUpdate: NoAction)
+  variants Series[]     @relation("SeriesVariants")
+  weeks    SeriesWeek[]
+
+  @@unique([seasonId, name])
+  @@unique([seasonId, id])
+  @@index([seasonId, linkedTo])
+  @@map("series")
+  @@schema("public")
+}
+
+model SeriesWeek {
+  seriesId   Int      @map("series_id")
+  weekNumber Int      @map("week_number")
+  trackId    Int      @map("track_id")
+  trackName  String   @map("track_name")
+  raceDate   DateTime @map("race_date") @db.Date
+  series     Series   @relation(fields: [seriesId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([seriesId, weekNumber])
+  @@index([trackId])
+  @@map("series_weeks")
+  @@schema("public")
+}

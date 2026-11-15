@@ -21,7 +21,7 @@ export default async function setup() {
     const db = new Client({ connectionString: url, connectionTimeoutMillis: 5000 });
     try {
       await db.connect();
-      const { rows } = await db.query("SELECT to_regclass('auth.users') AS users, to_regclass('public.profiles') AS profiles, to_regclass('public.feedback') AS feedback, to_regclass('public.user_owned_tracks') AS tracks, to_regclass('public.user_favorite_series') AS series, to_regclass('public._prisma_migrations') AS history");
+      const { rows } = await db.query("SELECT to_regclass('auth.users') AS users, to_regclass('public.profiles') AS profiles, to_regclass('public.feedback') AS feedback, to_regclass('public.user_owned_tracks') AS tracks, to_regclass('public.user_favorite_series') AS favorites, to_regclass('public.seasons') AS seasons, to_regclass('public.series') AS series, to_regclass('public.series_weeks') AS weeks, to_regclass('public._prisma_migrations') AS history");
       if (!rows[0].users || Object.entries(rows[0]).some(([key, value]) => key !== "users" && value !== null)) {
         throw new Error("Integration targets must be fresh disposable Supabase databases with no application tables/history.");
       }
