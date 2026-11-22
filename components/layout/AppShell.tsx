@@ -25,7 +25,7 @@ export function AppShell({
         currentTab="season-planning"
         season={season}
         title="Season planning"
-        description="Compare series overlap, spot high-value tracks, and export the current season plan."
+        description="Compare series overlap and spot high-value tracks for the current season."
         authSlot={authSlot}
         utilitySlot={utilitySlot}
       />

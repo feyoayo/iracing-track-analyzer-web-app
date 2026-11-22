@@ -7,7 +7,6 @@ import { AnalysisFilters } from "@/components/analysis/AnalysisFilters";
 import { useAnalysisPreference } from "@/components/analysis/useAnalysisPreference";
 import { useScheduleClock } from "@/lib/hooks/useScheduleClock";
 import { AnalysisTable } from "@/components/analysis/AnalysisTable";
-import { ExportButton } from "@/components/analysis/ExportButton";
 import { AppShell } from "@/components/layout/AppShell";
 import { analyzeSchedule } from "@/lib/analysis/analyzeSchedule";
 import { normalizePreparedSeason } from "@/lib/data/seriesClassOverrides";
@@ -44,10 +43,6 @@ export function AppClient({
   const [selectedSeries, setSelectedSeries] = useState<string[]>([]);
   const now = useScheduleClock();
   const preference = useAnalysisPreference(isAuthenticated, accountIncludePastWeeks);
-  const exportResult = useMemo(
-    () => analyzeSchedule(normalizedSeason, selectedSeries),
-    [normalizedSeason, selectedSeries],
-  );
   const result = useMemo(
     () => now ? analyzeSchedule(normalizedSeason, selectedSeries, preference.includePastWeeks ? undefined : now) : null,
     [normalizedSeason, selectedSeries, preference.includePastWeeks, now],
@@ -164,7 +159,6 @@ export function AppClient({
             onSelectAllSeries={() => setSelectedSeries(classSeries)}
             onClearSeries={() => setSelectedSeries([])}
           />
-          <ExportButton result={exportResult} />
         </>
       }
       analysis={
