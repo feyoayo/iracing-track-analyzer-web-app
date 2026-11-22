@@ -1,6 +1,6 @@
 "use client";
 
-import { Checkbox } from "@/components/ui/checkbox";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { BarChart3, Layers3, Route } from "lucide-react";
 
@@ -19,8 +19,7 @@ export function AnalysisTable({
   result,
   ownedTrackIds,
   isAuthenticated,
-  includePastWeeks,
-  onIncludePastWeeksChange,
+  controls,
   preferenceBusy,
   preferenceError,
   onRetryPreference,
@@ -28,8 +27,7 @@ export function AnalysisTable({
   result: AnalysisResult | null;
   ownedTrackIds: number[];
   isAuthenticated: boolean;
-  includePastWeeks: boolean;
-  onIncludePastWeeksChange: (value: boolean) => void;
+  controls: ReactNode;
   preferenceBusy: boolean;
   preferenceError: string | null;
   onRetryPreference: () => void;
@@ -49,15 +47,6 @@ export function AnalysisTable({
               {result.tracks.length} tracks across {result.seriesNames.length} series
             </p>
           ) : null}
-          <label className="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground hover:text-foreground">
-            <Checkbox
-              className="h-3.5 w-3.5 border-muted-foreground/40"
-              checked={includePastWeeks}
-              disabled={preferenceBusy}
-              onCheckedChange={(checked) => onIncludePastWeeksChange(checked === true)}
-            />
-            Include past weeks
-          </label>
           {preferenceError ? (
             <p role="status" className="max-w-xs text-right text-xs text-muted-foreground">
               {preferenceError}{" "}
@@ -68,6 +57,8 @@ export function AnalysisTable({
           ) : null}
         </div>
       </div>
+
+      {controls}
 
       {!result || result.seriesNames.length === 0 ? (
         <div className="flex min-h-64 flex-col items-start justify-center gap-2 rounded-lg border border-dashed bg-muted/20 p-6">

@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 
-import { AnalysisFilters } from "@/components/analysis/AnalysisFilters";
+import { AnalysisFilterDialog } from "@/components/analysis/AnalysisFilterDialog";
 import { useAnalysisPreference } from "@/components/analysis/useAnalysisPreference";
 import { useScheduleClock } from "@/lib/hooks/useScheduleClock";
 import { AnalysisTable } from "@/components/analysis/AnalysisTable";
@@ -53,14 +53,6 @@ export function AppClient({
     [normalizedSeason, selectedSeries, preference.includePastWeeks, now],
   );
 
-  const classSeries = useMemo(
-    () =>
-      normalizedSeason.series
-        .filter((series) => selectedClasses.includes(series.seriesClass))
-        .map((series) => series.seriesName),
-    [normalizedSeason, selectedClasses],
-  );
-
   useEffect(() => {
     const fallbackClass = defaultClass;
     const saved = loadSelection();
@@ -76,7 +68,7 @@ export function AppClient({
       setSelectedClasses(urlClasses);
       setSelectedSeries((favoriteSeries.length
         ? favoriteSeries.map((series) => series.seriesName)
-        : saved?.selectedSeries ?? []).filter((name) => allowedSeries.has(name)));
+        : saved?.selectedSeries ?? [...allowedSeries]).filter((name) => allowedSeries.has(name)));
       setSelectionReady(true);
       return;
     }
@@ -102,7 +94,7 @@ export function AppClient({
         ? saved.selectedSeries.filter((seriesName) =>
             nextClassSeries.includes(seriesName),
           )
-        : [],
+        : nextClassSeries,
     );
     setSelectionReady(true);
   }, [classes, defaultClass, initialFavoriteSeries, normalizedSeason.series]);
@@ -137,41 +129,33 @@ export function AppClient({
       season={season}
       authSlot={authSlot}
       utilitySlot={utilitySlot}
-      controls={
-        <>
-          <AnalysisFilters
-            classes={classes}
-            selectedClasses={selectedClasses}
-            seriesNames={classSeries}
-            selectedSeries={selectedSeries}
-            onClassToggle={(value) => {
-              const nextClasses = selectedClasses.includes(value)
-                ? selectedClasses.filter((item) => item !== value)
-                : [...selectedClasses, value];
-              setSelectedClasses(nextClasses);
-              const allowedSeries = new Set(normalizedSeason.series
-                .filter((series) => nextClasses.includes(series.seriesClass))
-                .map((series) => series.seriesName));
-              setSelectedSeries((current) => current.filter((name) => allowedSeries.has(name)));
-            }}
-            onSeriesToggle={(value) =>
-              setSelectedSeries((current) =>
-                current.includes(value)
-                  ? current.filter((item) => item !== value)
-                  : [...current, value],
-              )
-            }
-            onSelectAllSeries={() => setSelectedSeries(classSeries)}
-            onClearSeries={() => setSelectedSeries([])}
-          />
-          <ExportButton result={exportResult} />
-        </>
-      }
       analysis={
         <AnalysisTable
           result={result}
-          includePastWeeks={preference.includePastWeeks}
-          onIncludePastWeeksChange={preference.change}
+          controls={
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-muted/20 p-3">
+              <div className="flex min-w-0 flex-wrap items-center gap-3">
+                <AnalysisFilterDialog
+                  classes={classes}
+                  series={normalizedSeason.series}
+                  selectedClasses={selectedClasses}
+                  selectedSeries={selectedSeries}
+                  includePastWeeks={preference.includePastWeeks}
+                  preferenceBusy={preference.busy}
+                  onApply={(selection, includePastWeeks) => {
+                    setSelectedClasses(selection.selectedClasses);
+                    setSelectedSeries(selection.selectedSeries);
+                    if (includePastWeeks !== preference.includePastWeeks) void preference.change(includePastWeeks);
+                  }}
+                />
+                <p className="text-sm text-muted-foreground">
+                  {selectedClasses.join(", ") || "No classes"} · {selectedSeries.length} series
+                  <span className="block text-xs">{preference.includePastWeeks ? "Full season" : "Upcoming weeks"}</span>
+                </p>
+              </div>
+              <div className="w-full sm:w-auto"><ExportButton result={exportResult} /></div>
+            </div>
+          }
           preferenceBusy={preference.busy}
           preferenceError={preference.error}
           onRetryPreference={preference.retry}

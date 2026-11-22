@@ -16,7 +16,7 @@ describe("Page", () => {
     render(element);
 
     expect(screen.getByRole("link", { name: "Schedule Analyzer — Home" })).toHaveAttribute("href", "/");
-    expect(screen.getByRole("checkbox", { name: "Include past weeks" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Filters" })).toBeInTheDocument();
     expect(screen.getByText("Export Excel")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Series" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Tracks" })).toBeInTheDocument();

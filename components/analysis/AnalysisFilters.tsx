@@ -1,8 +1,10 @@
 import { ChevronDown } from "lucide-react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ClassIcon } from "@/components/analysis/ClassIcon";
 import {
@@ -26,6 +28,8 @@ type Props = {
 const CLASS_ORDER = ["Sports Car", "Formula", "Oval", "Other"];
 
 export function AnalysisFilters(props: Props) {
+  const [search, setSearch] = useState("");
+  const visibleSeries = props.seriesNames.filter(name => name.toLowerCase().includes(search.trim().toLowerCase()));
   const orderedClasses = [...props.classes].sort((left, right) => {
     const leftIndex = CLASS_ORDER.indexOf(left);
     const rightIndex = CLASS_ORDER.indexOf(right);
@@ -110,12 +114,16 @@ export function AnalysisFilters(props: Props) {
           </div>
         </div>
 
-        <ScrollArea className="h-72 rounded-md border bg-muted/30">
+        <Input type="search" aria-label="Search series" placeholder="Search series…" value={search} onChange={event => setSearch(event.target.value)} />
+        <ScrollArea className="h-64 rounded-md border bg-muted/30">
           <div className="grid p-1">
             {props.selectedClasses.length === 0 ? (
               <p className="px-3 py-4 text-sm text-muted-foreground">Choose at least one class to see its series.</p>
             ) : null}
-            {props.seriesNames.map((name) => (
+            {props.selectedClasses.length > 0 && visibleSeries.length === 0 ? (
+              <p className="px-3 py-4 text-sm text-muted-foreground">No matching series.</p>
+            ) : null}
+            {visibleSeries.map((name) => (
               <label
                 key={name}
                 className="flex cursor-pointer items-start gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent"
