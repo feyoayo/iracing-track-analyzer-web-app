@@ -4,6 +4,9 @@ import { I18nProvider } from "@/components/i18n/I18nProvider";
 import { getRequestLocale } from "@/lib/i18n/server";
 import { Analytics } from '@vercel/analytics/next';
 
+// Cookie-derived HTML language requires rendering this layout per request.
+export const instant = false;
+
 export const metadata: Metadata = {
   title: "iR Schedule Analyzer",
   description: "Current-season analysis and track lookup",

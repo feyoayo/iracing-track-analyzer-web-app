@@ -1,5 +1,6 @@
 import "server-only";
 import { connection } from "next/server";
+import { cacheLife } from "next/cache";
 import tracksIndex from "@/data/tracks-index.json";
 import { getCurrentPreparedSeason } from "@/lib/db/schedules";
 import { mergeSeasonIntoTracksIndex } from "@/lib/data/trackHistory";
@@ -13,6 +14,13 @@ export async function getLatestPreparedData(): Promise<{
 }> {
   // Database schedules are request-time data; builds must not open a connection.
   await connection();
+  return getCachedPreparedData();
+}
+
+async function getCachedPreparedData() {
+  "use cache";
+  cacheLife("hours");
+
   const season = await getCurrentPreparedSeason();
 
   return {

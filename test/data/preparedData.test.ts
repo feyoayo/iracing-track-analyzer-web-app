@@ -3,6 +3,8 @@ import { beforeEach, expect, it, vi } from "vitest";
 const source = vi.hoisted(() => ({ read: vi.fn(), connection: vi.fn() }));
 vi.mock("@/lib/db/schedules", () => ({ getCurrentPreparedSeason: source.read }));
 vi.mock("next/server", () => ({ connection: source.connection }));
+// Vitest does not run Next's Cache Components compiler or request context.
+vi.mock("next/cache", () => ({ cacheLife: () => {} }));
 vi.mock("@/data/tracks-index.json", () => ({ default: { tracks: [
   { trackId: 10, trackName: "Spa", seasonName: "2027 Season 1", seriesName: "Stale", seriesClass: "Other", weekNumber: 1, raceDate: "2027-01-01" },
   { trackId: 10, trackName: "Spa", seasonName: "2026 Season 4", seriesName: "History", seriesClass: "Sports Car", weekNumber: 1, raceDate: "2026-09-15" },
