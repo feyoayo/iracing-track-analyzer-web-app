@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { I18nProvider } from "@/components/i18n/I18nProvider";
+import { getRequestLocale } from "@/lib/i18n/server";
 import { Analytics } from '@vercel/analytics/next';
 
 export const metadata: Metadata = {
@@ -7,15 +9,16 @@ export const metadata: Metadata = {
   description: "Current-season analysis and track lookup",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getRequestLocale();
   return (
-    <html lang="en">
+    <html lang={locale}>
       <body className="min-h-screen bg-background text-foreground antialiased">
-        {children}
+        <I18nProvider initialLocale={locale}>{children}</I18nProvider>
         <Analytics />
       </body>
     </html>

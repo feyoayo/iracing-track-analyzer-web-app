@@ -1,3 +1,6 @@
+"use client";
+
+import { useI18n } from "@/components/i18n/I18nProvider";
 import type { PreparedSeason } from "@/lib/types";
 import type { ReactNode } from "react";
 import Link from "next/link";
@@ -22,6 +25,7 @@ export function TrackDetailPage({
   authSlot?: ReactNode;
   utilitySlot?: ReactNode;
 }) {
+  const { t } = useI18n();
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-[1440px] flex-col gap-4 px-4 pb-24 md:px-6">
       <SiteHeader
@@ -39,7 +43,7 @@ export function TrackDetailPage({
           className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to tracks
+          {t("Back to tracks")}
         </Link>
       </div>
 
@@ -51,14 +55,14 @@ export function TrackDetailPage({
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Route className="h-4 w-4" />
                   <span className="text-xs font-medium uppercase tracking-[0.12em]">
-                    Current season
+                    {t("Current season")}
                   </span>
                 </div>
                 <strong className="text-3xl font-semibold">
                   {usage.currentSeason.length}
                 </strong>
                 <p className="text-sm text-muted-foreground">
-                  Appearances in {seasonName}
+                  {t("Appearances in {season}", { season: seasonName })}
                 </p>
               </div>
 
@@ -66,20 +70,20 @@ export function TrackDetailPage({
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <History className="h-4 w-4" />
                   <span className="text-xs font-medium uppercase tracking-[0.12em]">
-                    Prepared history
+                    {t("Prepared history")}
                   </span>
                 </div>
                 <strong className="text-3xl font-semibold">
                   {usage.history.length}
                 </strong>
-                <p className="text-sm text-muted-foreground">Total indexed rows</p>
+                <p className="text-sm text-muted-foreground">{t("Total indexed rows")}</p>
               </div>
 
               <div className="flex flex-wrap gap-2">
                 {Array.from(new Set(usage.currentSeason.map((row) => row.seriesClass))).map(
                   (seriesClass) => (
                     <Badge key={seriesClass} variant="secondary">
-                      {seriesClass}
+                      {t(seriesClass)}
                     </Badge>
                   ),
                 )}

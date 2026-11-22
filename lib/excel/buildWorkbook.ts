@@ -1,12 +1,15 @@
+import type { Locale } from "@/lib/i18n/locale";
+import { translate } from "@/lib/i18n/messages";
 import * as XLSX from "xlsx";
 
 import type { AnalysisResult } from "@/lib/analysis/analyzeSchedule";
 
-export function buildWorkbook(result: AnalysisResult): XLSX.WorkBook {
+export function buildWorkbook(result: AnalysisResult, locale: Locale = "en"): XLSX.WorkBook {
+  const t = (key: string) => translate(locale, key);
   const workbook = XLSX.utils.book_new();
 
   const matrixRows = [
-    ["Track", ...result.seriesNames],
+    [t("Track"), ...result.seriesNames],
     ...result.tracks.map((track) => [
       track.trackName,
       ...result.seriesNames.map(
@@ -16,7 +19,7 @@ export function buildWorkbook(result: AnalysisResult): XLSX.WorkBook {
   ];
 
   const mustHaveRows = [
-    ["#", "Track", "Total Series", "Sports Car", "Oval", "Formula", "Priority"],
+    ["#", t("Track"), t("Total Series"), t("Sports Car"), t("Oval"), t("Formula"), t("Priority")],
     ...result.tracks.map((track, index) => [
       index + 1,
       track.trackName,
@@ -24,7 +27,7 @@ export function buildWorkbook(result: AnalysisResult): XLSX.WorkBook {
       track.classCounts["Sports Car"] ?? 0,
       track.classCounts["Oval"] ?? 0,
       track.classCounts["Formula"] ?? 0,
-      track.priority,
+      t(track.priority),
     ]),
   ];
 
@@ -40,23 +43,23 @@ export function buildWorkbook(result: AnalysisResult): XLSX.WorkBook {
         return [week, date, track.trackName];
       });
 
-    return [[seriesName], ["Week", "Date", "Track"], ...rows, []];
+    return [[seriesName], [t("Week"), t("Date"), t("Track")], ...rows, []];
   });
 
   XLSX.utils.book_append_sheet(
     workbook,
     XLSX.utils.aoa_to_sheet(matrixRows),
-    "Track x Series Matrix",
+    t("Track x Series Matrix"),
   );
   XLSX.utils.book_append_sheet(
     workbook,
     XLSX.utils.aoa_to_sheet(mustHaveRows),
-    "Must-Have Analysis",
+    t("Must-Have Analysis"),
   );
   XLSX.utils.book_append_sheet(
     workbook,
     XLSX.utils.aoa_to_sheet(fullScheduleRows),
-    "Full Schedule",
+    t("Full Schedule"),
   );
 
   return workbook;

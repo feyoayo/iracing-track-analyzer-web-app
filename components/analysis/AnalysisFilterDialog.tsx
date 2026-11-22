@@ -1,5 +1,6 @@
 "use client";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
 import { useState } from "react";
 import { SlidersHorizontal } from "lucide-react";
 import { AnalysisFilters } from "@/components/analysis/AnalysisFilters";
@@ -17,6 +18,7 @@ type Props = SavedSelection & {
 };
 
 export function AnalysisFilterDialog(props: Props) {
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<SavedSelection>({ selectedClasses: [], selectedSeries: [] });
   const [includePastWeeks, setIncludePastWeeks] = useState(false);
@@ -35,13 +37,13 @@ export function AnalysisFilterDialog(props: Props) {
       <DialogTrigger asChild>
         <Button variant="outline" type="button">
           <SlidersHorizontal className="h-4 w-4" />
-          Filters
+          {t("Filters")}
         </Button>
       </DialogTrigger>
       <DialogContent className="flex max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-xl flex-col gap-0 overflow-hidden p-0">
         <DialogHeader className="shrink-0 border-b px-6 py-5 pr-12">
-          <DialogTitle>Filters</DialogTitle>
-          <DialogDescription>Choose which series and weeks to compare.</DialogDescription>
+          <DialogTitle>{t("Filters")}</DialogTitle>
+          <DialogDescription>{t("Choose which series and weeks to compare.")}</DialogDescription>
         </DialogHeader>
         <div className="min-h-0 overflow-y-auto px-6 py-5">
           <AnalysisFilters
@@ -64,15 +66,15 @@ export function AnalysisFilterDialog(props: Props) {
           />
           <label className="mt-5 flex cursor-pointer items-center gap-3 border-t pt-5 text-sm">
             <Checkbox checked={includePastWeeks} disabled={props.preferenceBusy} onCheckedChange={value => setIncludePastWeeks(value === true)} />
-            Include past weeks
+            {t("Include past weeks")}
           </label>
         </div>
         <DialogFooter className="shrink-0 gap-2 border-t px-6 py-4 sm:space-x-0">
-          <Button variant="outline" type="button" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button variant="outline" type="button" onClick={() => setOpen(false)}>{t("Cancel")}</Button>
           <Button type="button" disabled={props.preferenceBusy} onClick={() => {
             props.onApply(draft, includePastWeeks);
             setOpen(false);
-          }}>Apply</Button>
+          }}>{t("Apply")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

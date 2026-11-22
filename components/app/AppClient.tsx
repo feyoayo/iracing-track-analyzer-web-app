@@ -1,5 +1,6 @@
 "use client";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
 
@@ -33,6 +34,7 @@ export function AppClient({
   isAuthenticated: boolean;
   accountIncludePastWeeks?: boolean | null;
 }) {
+  const { t } = useI18n();
   const { season: normalizedSeason, resolveSelection } = useMemo(
     () => collapseFixedSeries(normalizePreparedSeason(season)), [season],
   );
@@ -154,8 +156,8 @@ export function AppClient({
                   }}
                 />
                 <p className="text-sm text-muted-foreground">
-                  {selectedClasses.join(", ") || "No classes"} · {selectedSeries.length} series
-                  <span className="block text-xs">{preference.includePastWeeks ? "Full season" : "Upcoming weeks"}</span>
+                  {selectedClasses.map(value => t(value)).join(", ") || t("No classes")} · {t("{count} series", { count: selectedSeries.length })}
+                  <span className="block text-xs">{t(preference.includePastWeeks ? "Full season" : "Upcoming weeks")}</span>
                 </p>
               </div>
               <div className="w-full sm:w-auto"><ExportButton result={exportResult} /></div>

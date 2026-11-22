@@ -1,3 +1,7 @@
+"use client";
+
+import { useI18n } from "@/components/i18n/I18nProvider";
+import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
 import type { ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -28,13 +32,14 @@ export function SiteHeader({
   authSlot?: ReactNode;
   utilitySlot?: ReactNode;
 }) {
+  const { t } = useI18n();
   return (
     <div className="grid grid-cols-1 gap-6">
       <header className="relative left-1/2 w-screen -translate-x-1/2 border-b bg-card">
         <div className="mx-auto flex max-w-[1440px] flex-wrap items-center gap-x-6 gap-y-4 px-4 py-3 md:px-6">
           <Link
             href="/"
-            aria-label="Schedule Analyzer — Home"
+            aria-label={t("Schedule Analyzer — Home")}
             className="relative block aspect-[6/1] w-64 max-w-full shrink-0 overflow-hidden rounded-sm transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <Image
@@ -48,7 +53,7 @@ export function SiteHeader({
           </Link>
 
           <nav
-            aria-label="Primary"
+            aria-label={t("Primary")}
             className="order-last flex w-full items-center gap-1 border-t pt-3 lg:order-none lg:w-auto lg:border-t-0 lg:pt-0"
           >
             {NAV_ITEMS.map((item) => {
@@ -66,7 +71,7 @@ export function SiteHeader({
                       : "text-muted-foreground hover:bg-muted hover:text-foreground",
                   )}
                 >
-                  {item.label}
+                  {t(item.label)}
                 </Link>
               );
             })}
@@ -84,6 +89,7 @@ export function SiteHeader({
                 <SeasonWeek season={season} />
               </div>
             </div>
+            <LanguageSwitcher />
             {authSlot ? (
               <div className="flex flex-wrap items-center gap-2">
                 {authSlot ? <div>{authSlot}</div> : null}
@@ -96,10 +102,10 @@ export function SiteHeader({
 
       <div className="space-y-2">
         <h1 className="text-3xl font-semibold leading-tight text-balance md:text-4xl">
-          {title}
+          {t(title)}
         </h1>
         <p className="max-w-3xl text-sm text-muted-foreground md:text-base">
-          {description}
+          {t(description)}
         </p>
       </div>
     </div>
