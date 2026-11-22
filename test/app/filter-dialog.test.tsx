@@ -18,6 +18,35 @@ afterEach(cleanup);
 const openFilters = () => fireEvent.click(screen.getByRole("button", { name: "Filters" }));
 
 describe("analysis filter dialog", () => {
+  it("hides paired Fixed series from selection, counts and Select all, keeping standalone Fixed series", () => {
+    const pairedSeason: PreparedSeason = { ...season, series: [
+      ...season.series,
+      { seriesName: "GT3 Test - Fixed", seriesClass: "Sports Car", weeks: [] },
+      { seriesName: "Standalone - Fixed", seriesClass: "Sports Car", weeks: [] },
+    ] };
+    render(<AppClient {...props} season={pairedSeason} />);
+    openFilters();
+    expect(screen.queryByRole("checkbox", { name: "GT3 Test - Fixed" })).not.toBeInTheDocument();
+    expect(screen.getByRole("checkbox", { name: "Standalone - Fixed" })).toBeChecked();
+    expect(screen.getByText("3 of 3 series")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Clear" }));
+    fireEvent.click(screen.getByRole("button", { name: "Select all" }));
+    fireEvent.click(screen.getByRole("button", { name: "Apply" }));
+    expect(JSON.parse(localStorage.getItem(key)!).selectedSeries).toEqual(["GT3 Test", "GT4 Test", "Standalone - Fixed"]);
+  });
+
+  it.each(["saved", "favorite"])("restores a %s Fixed selection using its regular counterpart", source => {
+    const pairedSeason: PreparedSeason = { ...season, series: [
+      ...season.series,
+      { seriesName: "GT3 Test - Fixed", seriesClass: "Sports Car", weeks: [] },
+    ] };
+    if (source === "saved") localStorage.setItem(key, JSON.stringify({ selectedClasses: ["Sports Car"], selectedSeries: ["GT3 Test - Fixed"] }));
+    render(<AppClient {...props} season={pairedSeason} initialFavoriteSeries={source === "favorite" ? ["GT3 Test - Fixed"] : []} />);
+    openFilters();
+    expect(screen.getByRole("checkbox", { name: "GT3 Test" })).toBeChecked();
+    expect(JSON.parse(localStorage.getItem(key)!).selectedSeries).toEqual(["GT3 Test"]);
+  });
+
   it("selects all Sports Car series for a user without settings", () => {
     render(<AppClient {...props} />);
     expect(JSON.parse(localStorage.getItem(key)!)).toEqual({ selectedClasses: ["Sports Car"], selectedSeries: ["GT3 Test", "GT4 Test"] });

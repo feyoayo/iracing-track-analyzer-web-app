@@ -10,6 +10,7 @@ import { AnalysisTable } from "@/components/analysis/AnalysisTable";
 import { ExportButton } from "@/components/analysis/ExportButton";
 import { AppShell } from "@/components/layout/AppShell";
 import { analyzeSchedule } from "@/lib/analysis/analyzeSchedule";
+import { collapseFixedSeries } from "@/lib/analysis/seriesVariants";
 import { normalizePreparedSeason } from "@/lib/data/seriesClassOverrides";
 import { loadSelection, saveSelection } from "@/lib/state/storage";
 import { readClassesQuery, writeClassesQuery } from "@/lib/state/classQuery";
@@ -32,7 +33,9 @@ export function AppClient({
   isAuthenticated: boolean;
   accountIncludePastWeeks?: boolean | null;
 }) {
-  const normalizedSeason = useMemo(() => normalizePreparedSeason(season), [season]);
+  const { season: normalizedSeason, resolveSelection } = useMemo(
+    () => collapseFixedSeries(normalizePreparedSeason(season)), [season],
+  );
 
   const classes = useMemo(
     () => [...new Set(normalizedSeason.series.map((series) => series.seriesClass))],
@@ -55,9 +58,11 @@ export function AppClient({
 
   useEffect(() => {
     const fallbackClass = defaultClass;
-    const saved = loadSelection();
+    const stored = loadSelection();
+    const saved = stored ? { ...stored, selectedSeries: resolveSelection(stored.selectedSeries) } : null;
+    const favoriteNames = resolveSelection(initialFavoriteSeries);
     const favoriteSeries = normalizedSeason.series.filter((series) =>
-      initialFavoriteSeries.includes(series.seriesName),
+      favoriteNames.includes(series.seriesName),
     );
 
     const urlClasses = readClassesQuery(window.location.search, classes);
@@ -97,7 +102,7 @@ export function AppClient({
         : nextClassSeries,
     );
     setSelectionReady(true);
-  }, [classes, defaultClass, initialFavoriteSeries, normalizedSeason.series]);
+  }, [classes, defaultClass, initialFavoriteSeries, normalizedSeason.series, resolveSelection]);
 
   useEffect(() => {
     if (!selectionReady) return;
