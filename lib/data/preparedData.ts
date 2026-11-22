@@ -18,7 +18,7 @@ export async function getLatestPreparedData(): Promise<{
 }
 
 async function getCachedPreparedData() {
-  "use cache";
+  "use cache: remote";
   cacheLife("hours");
 
   const season = await getCurrentPreparedSeason();

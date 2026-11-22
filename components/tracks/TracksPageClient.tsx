@@ -2,6 +2,7 @@
 
 import { useI18n } from "@/components/i18n/I18nProvider";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { startTransition, useDeferredValue, useMemo, useState } from "react";
 import { ArrowDownAZ, ArrowUpAZ, ArrowUpDown, Search } from "lucide-react";
@@ -41,6 +42,7 @@ export function TracksPageClient({
   initialOwnedTrackIds: number[];
 }) {
   const { t } = useI18n();
+  const router = useRouter();
   const normalizedSeason = useMemo(() => normalizePreparedSeason(season), [season]);
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
@@ -265,7 +267,9 @@ export function TracksPageClient({
                               }),
                             });
 
-                            if (!response.ok) {
+                            if (response.ok) {
+                              router.refresh();
+                            } else {
                               setOwnedTrackIds((current) => {
                                 const next = new Set(current);
                                 if (nextOwned) {

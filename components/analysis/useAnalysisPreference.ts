@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { loadGuestIncludePastWeeks, saveGuestIncludePastWeeks } from "@/lib/state/analysisPreferences";
 
 async function saveAccount(value: boolean, initializeOnly: boolean): Promise<boolean> {
@@ -16,6 +17,7 @@ async function saveAccount(value: boolean, initializeOnly: boolean): Promise<boo
 }
 
 export function useAnalysisPreference(isAuthenticated: boolean, accountValue: boolean | null) {
+  const router = useRouter();
   const [includePastWeeks, setIncludePastWeeks] = useState(accountValue ?? false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,11 +43,11 @@ export function useAnalysisPreference(isAuthenticated: boolean, accountValue: bo
     setBusy(true);
     saving.current = true;
     void saveAccount(guestValue, true)
-      .then(value => { if (isCurrent()) setIncludePastWeeks(value); })
+      .then(value => { if (isCurrent()) { setIncludePastWeeks(value); router.refresh(); } })
       .catch(() => { if (isCurrent()) setError("Could not save account preference."); })
       .finally(() => { if (isCurrent()) { setBusy(false); saving.current = false; } });
     return cleanup;
-  }, [isAuthenticated, accountValue]);
+  }, [isAuthenticated, accountValue, router]);
 
   async function save(value: boolean, initializeOnly: boolean) {
     if (saving.current) return;
@@ -58,7 +60,10 @@ export function useAnalysisPreference(isAuthenticated: boolean, accountValue: bo
     try {
       if (isAuthenticated) {
         const savedValue = await saveAccount(value, initializeOnly);
-        if (revision.current === currentRevision) setIncludePastWeeks(savedValue);
+        if (revision.current === currentRevision) {
+          setIncludePastWeeks(savedValue);
+          router.refresh();
+        }
       } else saveGuestIncludePastWeeks(value);
     } catch {
       if (revision.current === currentRevision) setError(isAuthenticated ? "Could not save account preference." : "Could not remember preference in this browser.");

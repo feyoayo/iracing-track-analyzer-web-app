@@ -63,6 +63,7 @@ export function SiteHeader({
                 <Link
                   key={item.href}
                   href={item.href}
+                  prefetch={true}
                   aria-current={isActive ? "page" : undefined}
                   className={cn(
                     "whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors",

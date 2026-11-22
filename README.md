@@ -46,13 +46,17 @@ Add `--current` to explicitly select it. Imports are transactional per season,
 replace stale schedules, and preserve links on surviving series. Links are
 configured explicitly by an administrator; names are not automatically paired.
 
-Public season data and derived track history use Next.js Cache Components with
+Public season data and derived track history use `use cache: remote` with
 `cacheLife('hours')`: data becomes eligible for refresh after one hour when
 requested again. Imports do not immediately invalidate
-this cache. The default cache is in memory per server process, may be evicted,
-and is cleared by restarts or new deployments; serverless instances may not
-reuse entries across requests. Sessions, locale and account preferences are not
+this cache. Vercel provides a shared regional Runtime Cache; local Next.js uses
+an in-memory cache unless a remote handler is configured. Entries may be evicted,
+and new deployments use new cache keys. Sessions, locale and account preferences are not
 part of this shared cache. Builds do not read the schedule database.
+
+The header fully prefetches the three main pages. Partial Prefetching is disabled
+so these prefetches include request-time content behind `connection()`. Successful
+account preference saves refresh the client router to discard older page snapshots.
 
 ## PDF refresh
 

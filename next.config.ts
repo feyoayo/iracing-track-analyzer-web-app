@@ -2,7 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
-  partialPrefetching: true,
+  // Full header prefetch must include content behind connection().
+  partialPrefetching: false,
   experimental: {
     agentUpgrade: "latest",
   },
