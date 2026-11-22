@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("@/lib/data/preparedData", async () => {
   const { default: season } = await import("../fixtures/prepared-data/schedules/2026-season-3.json");
   return { getLatestPreparedData: async () => ({ season }) };
@@ -9,6 +9,12 @@ import Page from "@/app/page";
 import ProfilePage from "@/app/profile/page";
 import SeriesPage from "@/app/series/page";
 import TracksPage from "@/app/tracks/page";
+
+beforeEach(() => {
+  vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "");
+  vi.stubEnv("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", "");
+});
+afterEach(() => { vi.unstubAllEnvs(); });
 
 describe("Page", () => {
   it("renders the current-season workflow shell", async () => {
