@@ -1,3 +1,4 @@
+import { LocalizedText } from "@/components/i18n/I18nProvider";
 import { HeaderAuth } from "@/components/auth/HeaderAuth";
 import { FeedbackDialog } from "@/components/feedback/FeedbackDialog";
 import { SiteHeader } from "@/components/layout/SiteHeader";
@@ -23,7 +24,7 @@ export default async function ProfilePage() {
 
       <Card className="max-w-3xl">
         <CardContent className="p-6">
-          <p className="text-sm text-muted-foreground">Profile page placeholder.</p>
+          <p className="text-sm text-muted-foreground"><LocalizedText text="Profile page placeholder." /></p>
         </CardContent>
       </Card>
     </main>

@@ -1,4 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+vi.mock("@/lib/data/preparedData", () => ({ getLatestPreparedData: async () => ({
+  season: { seasonSlug: "2026-season-3", seasonName: "2026 Season 3", series: [] },
+}) }));
 const deps = vi.hoisted(() => ({ getUser: vi.fn(), tracks: vi.fn(), favorites: vi.fn() }));
 vi.mock("@/lib/supabase/server", () => ({ createClient: async () => ({ auth: { getUser: deps.getUser } }) }));
 vi.mock("@/components/auth/HeaderAuth", () => ({ HeaderAuth: async () => null }));
@@ -12,7 +15,7 @@ beforeEach(() => {
   deps.tracks.mockResolvedValue([12]); deps.favorites.mockResolvedValue(["GT3"]);
 });
 describe("server preference loading", () => {
-  it.each([Page, TracksPage, SeriesPage])("renders anonymous pages without database access", async (renderPage) => {
+  it.each([Page, TracksPage, SeriesPage])("renders anonymous pages without querying private preferences", async (renderPage) => {
     deps.getUser.mockResolvedValue({ data: { user: null }, error: null });
     const element = await renderPage();
     expect(element.props.isAuthenticated).toBe(false);

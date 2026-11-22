@@ -1,5 +1,6 @@
 "use client";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
 import { usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ function buildRedirectTo(pathname: string) {
 }
 
 export function SignInButton() {
+  const { t } = useI18n();
   const pathname = usePathname();
 
   return (
@@ -31,7 +33,7 @@ export function SignInButton() {
         });
       }}
     >
-      Continue with Google
+      {t("Continue with Google")}
     </Button>
   );
 }

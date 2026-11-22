@@ -1,5 +1,6 @@
 "use client";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { startTransition, useDeferredValue, useMemo, useState } from "react";
@@ -46,6 +47,7 @@ export function SeriesPageClient({
   isAuthenticated: boolean;
   initialFavoriteSeries: string[];
 }) {
+  const { t } = useI18n();
   const normalizedSeason = useMemo(() => normalizePreparedSeason(season), [season]);
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
@@ -124,7 +126,7 @@ export function SeriesPageClient({
               htmlFor="series-lookup"
               className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground"
             >
-              Series lookup
+              {t("Series lookup")}
             </label>
             <div className="relative max-w-xl">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -137,16 +139,16 @@ export function SeriesPageClient({
                   setQuery(nextValue);
                   startTransition(() => setPage(1));
                 }}
-                placeholder="Find a series"
+                placeholder={t("Find a series")}
               />
             </div>
             <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
-              Open a series to inspect its current-season schedule and mark favorites for later.
+              {t("Open a series to inspect its current-season schedule and mark favorites for later.")}
             </p>
           </div>
 
           <div className="grid max-w-xs gap-2">
-            <Label htmlFor="series-class-filter">Series type</Label>
+            <Label htmlFor="series-class-filter">{t("Series type")}</Label>
             <Select
               value={selectedClass}
               onValueChange={(value) => {
@@ -155,12 +157,12 @@ export function SeriesPageClient({
               }}
             >
               <SelectTrigger id="series-class-filter">
-                <SelectValue placeholder="Choose type" />
+                <SelectValue placeholder={t("Choose type")} />
               </SelectTrigger>
               <SelectContent>
                 {classOptions.map((value) => (
                   <SelectItem key={value} value={value}>
-                    {value}
+                    {t(value)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -170,12 +172,12 @@ export function SeriesPageClient({
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
-                Series directory
+                {t("Series directory")}
               </p>
-              <h2 className="mt-1 text-lg font-semibold">Current season series</h2>
+              <h2 className="mt-1 text-lg font-semibold">{t("Current season series")}</h2>
             </div>
             <p className="text-sm text-muted-foreground">
-              {filteredSeries.length} series
+              {t("{count} series", { count: filteredSeries.length })}
             </p>
           </div>
 
@@ -198,7 +200,7 @@ export function SeriesPageClient({
                         setSortDirection("asc");
                       }}
                     >
-                      Name
+                      {t("Name")}
                       {sortKey === "name" ? (
                         sortDirection === "asc" ? (
                           <ArrowDownAZ className="h-4 w-4 text-primary" />
@@ -226,7 +228,7 @@ export function SeriesPageClient({
                           setSortDirection("desc");
                         }}
                       >
-                        Favourite
+                        {t("Favourite")}
                         {sortKey === "favourite" ? (
                           <ArrowUpDown
                             className={`h-4 w-4 ${sortDirection === "asc" ? "text-primary" : "rotate-180 text-primary"}`}
@@ -253,7 +255,7 @@ export function SeriesPageClient({
                     {isAuthenticated ? (
                       <TableCell>
                         <Checkbox
-                          aria-label={`Mark ${series.seriesName} as favourite`}
+                          aria-label={t("Mark {name} as favourite", { name: series.seriesName })}
                           checked={favoriteSeries.has(series.seriesName)}
                           disabled={pendingSeries.has(series.seriesName)}
                           onCheckedChange={async (checked) => {
@@ -312,7 +314,7 @@ export function SeriesPageClient({
                       colSpan={isAuthenticated ? 2 : 1}
                       className="py-10 text-muted-foreground"
                     >
-                      No series match “{query.trim()}”.
+                      {t("No series match “{query}”.", { query: query.trim() })}
                     </TableCell>
                   </TableRow>
                 ) : null}
@@ -322,7 +324,7 @@ export function SeriesPageClient({
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-muted-foreground">
-              Page {currentPage} of {totalPages}
+              {t("Page {page} of {total}", { page: currentPage, total: totalPages })}
             </p>
             <div className="flex gap-2">
               <Button
@@ -331,7 +333,7 @@ export function SeriesPageClient({
                 disabled={currentPage === 1}
                 onClick={() => setPage((value) => Math.max(1, value - 1))}
               >
-                Previous
+                {t("Previous")}
               </Button>
               <Button
                 type="button"
@@ -339,7 +341,7 @@ export function SeriesPageClient({
                 disabled={currentPage === totalPages}
                 onClick={() => setPage((value) => Math.min(totalPages, value + 1))}
               >
-                Next
+                {t("Next")}
               </Button>
             </div>
           </div>

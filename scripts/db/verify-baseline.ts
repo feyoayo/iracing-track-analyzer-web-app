@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { isDeepStrictEqual } from "node:util";
 import { Client } from "pg";
+import { postgresConnectionConfig } from "../../lib/db/ssl";
 
 export type CatalogRow = { section: string; key: string; definition: unknown };
 
@@ -40,7 +41,7 @@ export function compareSnapshots(actual: CatalogRow[], reference: CatalogRow[]):
 }
 
 export async function readSnapshot(connectionString: string): Promise<CatalogRow[]> {
-  const client = new Client({ connectionString, connectionTimeoutMillis: 5000 });
+  const client = new Client({ ...postgresConnectionConfig(connectionString), connectionTimeoutMillis: 5000 });
   try {
     await client.connect();
     await client.query("BEGIN READ ONLY");

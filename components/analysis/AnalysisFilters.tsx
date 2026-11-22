@@ -1,8 +1,13 @@
+"use client";
+
+import { useI18n } from "@/components/i18n/I18nProvider";
 import { ChevronDown } from "lucide-react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ClassIcon } from "@/components/analysis/ClassIcon";
 import {
@@ -26,6 +31,9 @@ type Props = {
 const CLASS_ORDER = ["Sports Car", "Formula", "Oval", "Other"];
 
 export function AnalysisFilters(props: Props) {
+  const { t } = useI18n();
+  const [search, setSearch] = useState("");
+  const visibleSeries = props.seriesNames.filter(name => name.toLowerCase().includes(search.trim().toLowerCase()));
   const orderedClasses = [...props.classes].sort((left, right) => {
     const leftIndex = CLASS_ORDER.indexOf(left);
     const rightIndex = CLASS_ORDER.indexOf(right);
@@ -38,32 +46,32 @@ export function AnalysisFilters(props: Props) {
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
-            Analysis scope
+            {t("Analysis scope")}
           </p>
-          <h2 className="mt-1 text-lg font-semibold">Series selection</h2>
+          <h2 className="mt-1 text-lg font-semibold">{t("Series selection")}</h2>
         </div>
         <p className="text-right text-sm text-muted-foreground">
-          {props.selectedSeries.length} of {props.seriesNames.length} series
+          {t("{selected} of {total} series", { selected: props.selectedSeries.length, total: props.seriesNames.length })}
         </p>
       </div>
 
       <div className="grid gap-2">
-        <Label htmlFor="class-select">Classes</Label>
+        <Label htmlFor="class-select">{t("Classes")}</Label>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
               id="class-select"
               variant="outline"
-              aria-label={`Classes: ${orderedClasses.filter(value => props.selectedClasses.includes(value)).join(", ") || "Choose classes"}`}
+              aria-label={t("Classes: {classes}", { classes: orderedClasses.filter(value => props.selectedClasses.includes(value)).map(value => t(value)).join(", ") || t("Choose classes") })}
               className="h-auto min-h-10 w-full justify-between px-3 py-2 font-normal"
             >
               <span className="flex flex-wrap items-center gap-x-3 gap-y-1 text-left">
-                {props.selectedClasses.length === 0 ? "Choose classes" : orderedClasses
+                {props.selectedClasses.length === 0 ? t("Choose classes") : orderedClasses
                   .filter(value => props.selectedClasses.includes(value))
                   .map(value => (
                     <span key={value} className="inline-flex items-center gap-2">
                       <ClassIcon seriesClass={value} />
-                      {value}
+                      {t(value)}
                     </span>
                   ))}
               </span>
@@ -80,7 +88,7 @@ export function AnalysisFilters(props: Props) {
                 className="gap-2"
               >
                 <ClassIcon seriesClass={value} />
-                {value}
+                {t(value)}
               </DropdownMenuCheckboxItem>
             ))}
           </DropdownMenuContent>
@@ -89,7 +97,7 @@ export function AnalysisFilters(props: Props) {
 
       <div className="grid gap-3">
         <div className="flex items-center justify-between gap-2">
-          <Label>Series</Label>
+          <Label>{t("Series")}</Label>
           <div className="flex gap-2">
             <Button
               variant="outline"
@@ -97,7 +105,7 @@ export function AnalysisFilters(props: Props) {
               type="button"
               onClick={props.onSelectAllSeries}
             >
-              Select all
+              {t("Select all")}
             </Button>
             <Button
               variant="outline"
@@ -105,17 +113,21 @@ export function AnalysisFilters(props: Props) {
               type="button"
               onClick={props.onClearSeries}
             >
-              Clear
+              {t("Clear")}
             </Button>
           </div>
         </div>
 
-        <ScrollArea className="h-72 rounded-md border bg-muted/30">
+        <Input type="search" aria-label={t("Search series")} placeholder={t("Search series…")} value={search} onChange={event => setSearch(event.target.value)} />
+        <ScrollArea className="h-64 rounded-md border bg-muted/30">
           <div className="grid p-1">
             {props.selectedClasses.length === 0 ? (
-              <p className="px-3 py-4 text-sm text-muted-foreground">Choose at least one class to see its series.</p>
+              <p className="px-3 py-4 text-sm text-muted-foreground">{t("Choose at least one class to see its series.")}</p>
             ) : null}
-            {props.seriesNames.map((name) => (
+            {props.selectedClasses.length > 0 && visibleSeries.length === 0 ? (
+              <p className="px-3 py-4 text-sm text-muted-foreground">{t("No matching series.")}</p>
+            ) : null}
+            {visibleSeries.map((name) => (
               <label
                 key={name}
                 className="flex cursor-pointer items-start gap-3 rounded-md px-3 py-2 text-sm transition-colors hover:bg-accent"

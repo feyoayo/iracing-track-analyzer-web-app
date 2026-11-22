@@ -13,6 +13,12 @@ const season: PreparedSeason = {
 const props = { season, initialFavoriteSeries: [], ownedTrackIds: [], isAuthenticated: false };
 beforeEach(() => { localStorage.clear(); window.history.replaceState(null, "", "/"); });
 afterEach(cleanup);
+function openFilters() {
+  fireEvent.click(screen.getByRole("button", { name: "Filters" }));
+}
+function applyFilters() {
+  fireEvent.click(screen.getByRole("button", { name: "Apply" }));
+}
 async function openClasses() {
   fireEvent.keyDown(screen.getByRole("button", { name: /Classes/ }), { key: "Enter" });
   return screen.findByRole("menuitemcheckbox", { name: "Formula" });
@@ -22,6 +28,7 @@ describe("multiple class selection", () => {
     window.history.replaceState(null, "", "/?classes=formula,oval&utm_source=share#filters");
     localStorage.setItem("iracing-track-analyzer-selection", JSON.stringify({ selectedClasses: ["Sports Car"], selectedSeries: ["GT3 Test"] }));
     render(<AppClient {...props} initialFavoriteSeries={["GT3 Test", "Formula Test"]} />);
+    openFilters();
     expect(screen.queryByRole("checkbox", { name: "GT3 Test" })).not.toBeInTheDocument();
     expect(screen.getByRole("checkbox", { name: "Formula Test" })).toBeChecked();
     expect(screen.getByRole("checkbox", { name: "Oval Test" })).toBeInTheDocument();
@@ -30,27 +37,34 @@ describe("multiple class selection", () => {
   });
   it("writes toggles to the URL and restores them after reopening", async () => {
     const view = render(<AppClient {...props} />);
+    openFilters();
     fireEvent.click(await openClasses());
-    expect(new URLSearchParams(window.location.search).get("classes")).toBe("sports-car,formula");
+    expect(new URLSearchParams(window.location.search).get("classes")).toBe("sports-car");
     fireEvent.keyDown(screen.getByRole("menu"), { key: "Escape" });
+    applyFilters();
+    expect(new URLSearchParams(window.location.search).get("classes")).toBe("sports-car,formula");
     view.unmount();
     localStorage.clear();
     render(<AppClient {...props} />);
+    openFilters();
     expect(screen.getByRole("checkbox", { name: "GT3 Test" })).toBeInTheDocument();
     expect(screen.getByRole("checkbox", { name: "Formula Test" })).toBeInTheDocument();
   });
   it("supports an explicitly empty URL selection and browser navigation", () => {
     window.history.replaceState(null, "", "/?classes=");
     render(<AppClient {...props} />);
+    openFilters();
     expect(screen.queryByRole("checkbox", { name: "GT3 Test" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
     window.history.replaceState(null, "", "/?classes=oval");
     fireEvent.popState(window);
+    openFilters();
     expect(screen.getByRole("checkbox", { name: "Oval Test" })).toBeInTheDocument();
     expect(screen.queryByRole("checkbox", { name: "GT3 Test" })).not.toBeInTheDocument();
   });
   it("adds a class without losing selected series and removes only the excluded class series", async () => {
     render(<AppClient {...props} />);
-    fireEvent.click(screen.getByRole("checkbox", { name: "GT3 Test" }));
+    openFilters();
     fireEvent.click(await openClasses());
     expect(screen.getByRole("menuitemcheckbox", { name: "Sports Car" })).toHaveAttribute("aria-checked", "true");
     expect(screen.getByRole("menuitemcheckbox", { name: "Formula" })).toHaveAttribute("aria-checked", "true");
@@ -62,9 +76,12 @@ describe("multiple class selection", () => {
     fireEvent.keyDown(screen.getByRole("menu"), { key: "Escape" });
     expect(screen.queryByRole("checkbox", { name: "GT3 Test" })).not.toBeInTheDocument();
     expect(screen.getByRole("checkbox", { name: "Formula Test" })).toBeChecked();
+    applyFilters();
+    expect(JSON.parse(localStorage.getItem("iracing-track-analyzer-selection")!).selectedSeries).toEqual(["Formula Test"]);
   });
   it("restores favorites across classes", () => {
     render(<AppClient {...props} initialFavoriteSeries={["GT3 Test", "Formula Test"]} />);
+    openFilters();
     expect(screen.getByRole("checkbox", { name: "GT3 Test" })).toBeChecked();
     expect(screen.getByRole("checkbox", { name: "Formula Test" })).toBeChecked();
   });

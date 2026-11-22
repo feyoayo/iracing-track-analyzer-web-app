@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { readdirSync } from "node:fs";
 import { afterAll, beforeAll, expect, it } from "vitest";
 import { Client } from "pg";
 import { verifyBaseline } from "../../scripts/db/verify-baseline";
@@ -22,7 +23,8 @@ it("adopts equivalent legacy tables without recreating data", async () => {
   prismaCommand(targets.baseline, ["migrate", "resolve", "--applied", "0_init"]);
   prismaCommand(targets.baseline, ["migrate", "deploy"]);
   expect((await legacy.query("SELECT track_id FROM public.user_owned_tracks WHERE user_id = $1", [userId])).rows).toEqual([{ track_id: 12 }]);
-  expect((await legacy.query("SELECT migration_name FROM public._prisma_migrations WHERE finished_at IS NOT NULL")).rows).toEqual([{ migration_name: "0_init" }]);
+  const migrations = readdirSync("prisma/migrations", { withFileTypes: true }).filter(entry => entry.isDirectory()).map(entry => entry.name).sort();
+  expect((await legacy.query("SELECT migration_name FROM public._prisma_migrations WHERE finished_at IS NOT NULL ORDER BY migration_name")).rows).toEqual(migrations.map(migration_name => ({ migration_name })));
   prismaCommand(targets.baseline, ["migrate", "status"]);
 });
 it("detects a weakened policy and restores it without touching history", async () => {

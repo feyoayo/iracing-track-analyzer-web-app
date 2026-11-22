@@ -1,3 +1,4 @@
+import { LocalizedText } from "@/components/i18n/I18nProvider";
 import { getLatestPreparedData } from "@/lib/data/preparedData";
 import Link from "next/link";
 
@@ -19,20 +20,19 @@ export default async function AuthErrorPage() {
         <CardContent className="grid gap-4 p-6">
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
-              Auth
+              <LocalizedText text="Auth" />
             </p>
-            <h2 className="mt-1 text-lg font-semibold">Sign-in did not complete</h2>
+            <h2 className="mt-1 text-lg font-semibold"><LocalizedText text="Sign-in did not complete" /></h2>
           </div>
           <p className="text-sm leading-6 text-muted-foreground">
-            Verify that Google is enabled in Supabase, the callback URL is configured,
-            and the app has valid Supabase environment variables.
+            <LocalizedText text="Verify that Google is enabled in Supabase, the callback URL is configured, and the app has valid Supabase environment variables." />
           </p>
           <div>
             <Link
               href="/"
               className="text-sm font-medium text-primary underline-offset-4 hover:underline"
             >
-              Return to season planning
+              <LocalizedText text="Return to season planning" />
             </Link>
           </div>
         </CardContent>

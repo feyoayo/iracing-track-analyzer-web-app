@@ -1,5 +1,6 @@
 "use client";
 
+import { useI18n } from "@/components/i18n/I18nProvider";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { startTransition, useDeferredValue, useMemo, useState } from "react";
@@ -39,6 +40,7 @@ export function TracksPageClient({
   isAuthenticated: boolean;
   initialOwnedTrackIds: number[];
 }) {
+  const { t } = useI18n();
   const normalizedSeason = useMemo(() => normalizePreparedSeason(season), [season]);
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
@@ -145,7 +147,7 @@ export function TracksPageClient({
               htmlFor="track-lookup"
               className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground"
             >
-              Track lookup
+              {t("Track lookup")}
             </label>
             <div className="relative max-w-xl">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -158,23 +160,23 @@ export function TracksPageClient({
                   setQuery(nextValue);
                   startTransition(() => setPage(1));
                 }}
-                placeholder="Find a track"
+                placeholder={t("Find a track")}
               />
             </div>
             <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
-              Search for a track to inspect current-season usage and past appearances.
+              {t("Search for a track to inspect current-season usage and past appearances.")}
             </p>
           </div>
 
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">
-                Track directory
+                {t("Track directory")}
               </p>
-              <h2 className="mt-1 text-lg font-semibold">Current season tracks</h2>
+              <h2 className="mt-1 text-lg font-semibold">{t("Current season tracks")}</h2>
             </div>
             <p className="text-sm text-muted-foreground">
-              {filteredTracks.length} tracks
+              {t("{count} tracks", { count: filteredTracks.length })}
             </p>
           </div>
 
@@ -188,7 +190,7 @@ export function TracksPageClient({
                       className="inline-flex items-center gap-2 font-medium text-inherit"
                       onClick={() => setSorting("name")}
                     >
-                      Name
+                      {t("Name")}
                       {renderSortIcon("name")}
                     </button>
                   </TableHead>
@@ -198,7 +200,7 @@ export function TracksPageClient({
                       className="inline-flex items-center gap-2 font-medium text-inherit"
                       onClick={() => setSorting("appears")}
                     >
-                      Current season appears
+                      {t("Current season appears")}
                       {renderSortIcon("appears")}
                     </button>
                   </TableHead>
@@ -209,7 +211,7 @@ export function TracksPageClient({
                         className="inline-flex items-center gap-2 font-medium text-inherit"
                         onClick={() => setSorting("owned")}
                       >
-                        Owned
+                        {t("Owned")}
                         {renderSortIcon("owned")}
                       </button>
                     </TableHead>
@@ -231,7 +233,7 @@ export function TracksPageClient({
                     {isAuthenticated ? (
                       <TableCell>
                         <Checkbox
-                          aria-label={`Mark ${track.trackName} as owned`}
+                          aria-label={t("Mark {name} as owned", { name: track.trackName })}
                           checked={ownedTrackIds.has(track.trackId)}
                           disabled={pendingTrackIds.has(track.trackId)}
                           onCheckedChange={async (checked) => {
@@ -292,7 +294,7 @@ export function TracksPageClient({
                       colSpan={isAuthenticated ? 3 : 2}
                       className="py-10 text-muted-foreground"
                     >
-                      No tracks match “{query.trim()}”.
+                      {t("No tracks match “{query}”.", { query: query.trim() })}
                     </TableCell>
                   </TableRow>
                 ) : null}
@@ -302,7 +304,7 @@ export function TracksPageClient({
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-muted-foreground">
-              Page {currentPage} of {totalPages}
+              {t("Page {page} of {total}", { page: currentPage, total: totalPages })}
             </p>
             <div className="flex gap-2">
               <Button
@@ -311,7 +313,7 @@ export function TracksPageClient({
                 disabled={currentPage === 1}
                 onClick={() => setPage((value) => Math.max(1, value - 1))}
               >
-                Previous
+                {t("Previous")}
               </Button>
               <Button
                 type="button"
@@ -321,7 +323,7 @@ export function TracksPageClient({
                   setPage((value) => Math.min(totalPages, value + 1))
                 }
               >
-                Next
+                {t("Next")}
               </Button>
             </div>
           </div>

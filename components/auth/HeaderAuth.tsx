@@ -17,7 +17,7 @@ export async function HeaderAuth() {
   }
 
   const avatarUrl = user.user_metadata.avatar_url as string | undefined;
-  const displayName = user.user_metadata.full_name ?? "Signed in";
+  const displayName = user.user_metadata.full_name ?? "";
 
   return (
     <div className="flex flex-col items-start gap-3 lg:items-end">

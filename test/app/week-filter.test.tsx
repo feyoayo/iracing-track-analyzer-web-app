@@ -18,7 +18,9 @@ describe("current week interface", () => {
     expect(screen.queryByRole("link", { name: "Past track" })).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Current track" })).toBeInTheDocument();
     expect(screen.getByText("2 tracks across 2 series")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Filters" }));
     fireEvent.click(screen.getByRole("checkbox", { name: "Include past weeks" }));
+    fireEvent.click(screen.getByRole("button", { name: "Apply" }));
     expect(await screen.findByRole("link", { name: "Past track" })).toBeInTheDocument();
     expect(screen.getByText("3 tracks across 2 series")).toBeInTheDocument();
   });
@@ -26,7 +28,9 @@ describe("current week interface", () => {
     vi.setSystemTime(new Date("2026-12-15T12:00:00Z"));
     render(<AppClient {...props} />);
     expect(await screen.findByText("No upcoming weeks")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Filters" }));
     fireEvent.click(screen.getByRole("checkbox", { name: "Include past weeks" }));
+    fireEvent.click(screen.getByRole("button", { name: "Apply" }));
     expect(await screen.findByRole("link", { name: "Past track" })).toBeInTheDocument();
   });
   it("still renders analysis when browser storage is unavailable", async () => {

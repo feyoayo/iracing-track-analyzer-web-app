@@ -23,6 +23,9 @@
 # misc
 .DS_Store
 *.pem
+/ssl-cert/
+/.migration-backups/
+/supabase/.temp/
 
 # debug
 npm-debug.log*
